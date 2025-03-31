@@ -9,7 +9,7 @@ from IPython.display import Image, display
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_community.tools.tavily_search import TavilySearchResults
 
 
@@ -325,6 +325,7 @@ class GraphVisualization():
         self.db_name = database_name
         self.table_name = table_name
         self.database_type = database_type
+        self.database_results = []
         self.compile()
     
     def make_system_prompt(self):
@@ -367,7 +368,7 @@ class GraphVisualization():
         if execution_globals:
             namespace.update(execution_globals)
 
-        if hasattr(self, 'database_results'):
+        if self.database_results is not None:
             namespace['result_data'] = self.database_results
         else:
             namespace['result_data'] = []
@@ -508,7 +509,8 @@ class ChatOrchestrator():
     
     def orchestrator_node(self, state: ChatOrchestratorState):
         sys_prompt = self.make_system_prompt()
-        return {"messages": [self.llm.invoke([sys_prompt] + state["messages"])]}
+        response = self.llm.invoke([sys_prompt] + state["messages"]).content
+        return {"messages": [AIMessage(content=response)]}
     
     def compile(self):
         builder = StateGraph(ChatOrchestratorState)
@@ -538,8 +540,8 @@ class ChatOrchestrator():
 
     def invoke(self, prompt:str):
         self.prompt = prompt
-        result = self.graph.invoke({"messages": [HumanMessage(prompt)]})
-        result = result["messages"][-1].content
+        reply = self.graph.invoke({"messages": [HumanMessage(prompt)]})
+        result = reply["messages"][-1].content
         img = self.base64_image
         self.base64_image = ""
-        return result, img
+        return result, img, reply

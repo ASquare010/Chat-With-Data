@@ -10,6 +10,7 @@ from PIL import Image
 st.set_page_config(
     layout="wide",
     page_title="Chat with Data",
+    initial_sidebar_state="collapsed"
 )
 
 # ---------- Session State Initialization ---------
@@ -28,13 +29,10 @@ def process_data(uploaded_file, use_saved_insights=True):
         file_base = os.path.splitext(csv_file_name)[0]
         json_file_path = os.path.join("temp", f"{file_base}.json")
         
-        print(json_file_path,"Path exists-> ",os.path.exists(json_file_path))
         if use_saved_insights and os.path.exists(json_file_path):
-            print("Loading saved insights...")
             with open(json_file_path, "r") as file:
                 insights_dict = json.load(file)
         else:
-            print("Generating new insights...")
             sample_data = run_sql_query("SELECT * FROM data LIMIT 5;")
             column_names = get_column_names()
             db_data = f"column_names: {column_names}, sample_data: {sample_data}"
