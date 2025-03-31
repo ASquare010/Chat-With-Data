@@ -1,0 +1,651 @@
+{
+  "Market_Category_Distribution_Insight": {
+    "insight_details": "Evaluate the distribution of securities across market categories. Clarify category classifications if needed.",
+    "relation_columns": [
+      {
+        "Market Category": "Character column indicating the market category classification of the stock. This helps in market categorization analysis."
+      }
+    ],
+    "relations": [
+      {
+        "Categorical_Analysis_Market_Category": "Evaluate the distribution of securities across market categories. Clarify category classifications if needed."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Market Category\", COUNT(*) AS security_count FROM data GROUP BY \"Market Category\" LIMIT 5",
+        "db_result": [
+          [" ", 4666],
+          ["G", 900],
+          ["Q", 1531],
+          ["S", 952]
+        ]
+      }
+    ],
+    "insight_summary": "{\n    \"insight\": \"The majority of securities (4666) do not have a specific market category listed, while categories 'G', 'Q', and 'S' represent 900, 1531, and 952 securities respectively.\",\n    \"direction\": \"Conduct further investigation to understand the implications of the large number of securities without a specified market category and determine the characteristics of those in categories 'G', 'Q', and 'S'.\",\n    \"action\": \"Perform a deeper analysis to characterize the securities within each market category by examining additional attributes such as financial status, exchange listings, and trading volumes.\"\n}"
+  },
+  "ETF_NonETF_Segmentation_Insight": {
+    "insight_details": "Segment securities into ETFs and non-ETFs. Use 'ETF' column to differentiate and compare market behaviors.",
+    "relation_columns": [
+      {
+        "ETF": "Boolean column indicating if a security is an Exchange-Traded Fund. Used for segmenting securities into ETFs which are key financial instruments. Domain Relevance: ETF analysis, market diversification."
+      }
+    ],
+    "relations": [
+      {
+        "Segmentation_ETF_NonETF": "Segment securities into ETFs and non-ETFs. Use 'ETF' column to differentiate and compare market behaviors."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT * FROM data WHERE \"ETF\" = 1 LIMIT 5",
+        "db_result": []
+      },
+      {
+        "sql_query": "SELECT * FROM data WHERE \"ETF\" = 0 LIMIT 5",
+        "db_result": []
+      }
+    ],
+    "insight_summary": "{\n    \"insight\": \"The ETF segmentation analysis found no records in the database for either ETFs or non-ETFs within the limited query results provided, indicating potential missing data or issues in the dataset.\",\n    \"direction\": \"Verify the completeness and accuracy of the dataset regarding the ETF classifications to ensure reliable segmentation and market behavior analysis.\",\n    \"action\": \"Conduct a thorough data quality check on the ETF column to address potential gaps or errors. If available, retrieve comprehensive data that accurately segments ETFs and non-ETFs for further analysis.\"\n}"
+  },
+  "Round_Lot_Size_Analysis": {
+    "insight_details": "Calculate average and total round lot sizes to understand trade volume characteristics across securities.",
+    "relation_columns": [
+      {
+        "Round Lot Size": "Numeric column showing the typical trading unit of security (shares per standard trading unit). Important for trading volume analysis and order strategy. Domain Relevance: trading analysis, market operations."
+      }
+    ],
+    "relations": [
+      {
+        "Aggregation_Analysis_Round_Lot_Size": "Calculate average and total round lot sizes to understand trade volume characteristics across securities."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT AVG(\"Round Lot Size\") AS average_round_lot_size, SUM(\"Round Lot Size\") AS total_round_lot_size FROM data LIMIT 5",
+        "db_result": [[99.94297428251957, 804441.0]]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The analysis reveals that the average round lot size for the securities is approximately 99.94 shares, with a total cumulative round lot size of 804,441 shares across the dataset.\",\n  \"direction\": \"Consider examining how the average and total round lot sizes correlate with other market factors such as volatility or liquidity to identify underlying patterns.\",\n  \"action\": \"Perform a deeper analysis by grouping the data by sector or exchange to see how round lot sizes vary across different categories and any patterns or anomalies in specific sectors or exchanges.\"\n}"
+  },
+  "Nasdaq_Traded_Insight": {
+    "insight_details": "Assess the percentage of securities traded on Nasdaq to identify Nasdaq-specific trends and opportunities.",
+    "relation_columns": [
+      {
+        "Nasdaq Traded": "Boolean column indicating if the stock is traded on the Nasdaq exchange. This is crucial for stock market analysis and investment strategies. Domain Relevance: financial markets, equities trading."
+      }
+    ],
+    "relations": [
+      {
+        "Boolean_Analysis_Nasdaq_Traded": "Assess the percentage of securities traded on Nasdaq to identify Nasdaq-specific trends and opportunities."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM data) AS percentage_of_nasdaq_traded FROM data WHERE \"Nasdaq Traded\" = 1 LIMIT 5",
+        "db_result": [[0.0]]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The analysis reveals that 0% of the securities in the dataset are traded on Nasdaq, suggesting a need to verify if the data is filtered or limited to non-Nasdaq listings.\",\n  \"direction\": \"Investigate the dataset further to identify any potential filtering criteria that might have excluded Nasdaq-traded securities and consider expanding the dataset to encompass a broader range of securities.\",\n  \"action\": \"Conduct a query to retrieve all securities where 'Nasdaq Traded' is either 'Y' or 'N' to ensure the dataset includes a complete representation of trading statuses. Example query: SELECT * FROM data WHERE \\\"Nasdaq Traded\\\" IN ('Y', 'N') LIMIT 5;\"\n}"
+  },
+  "Test_Issue_Insight": {
+    "insight_details": "Identify securities flagged as test issues to exclude from active trading analyses and strategies.",
+    "relation_columns": [
+      {
+        "Test Issue": "Boolean column flagging securities that are test issues (not for trading). Relevant for identifying non-active market securities. Domain Relevance: market data maintenance, trading operations."
+      }
+    ],
+    "relations": [
+      {
+        "Boolean_Analysis_Test_Issue": "Identify securities flagged as test issues to exclude from active trading analyses and strategies."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT * FROM data WHERE \"Test Issue\" = 1 LIMIT 5",
+        "db_result": []
+      }
+    ],
+    "insight_summary": "{\n    \"insight\": \"The data indicates that there are no securities flagged as test issues, suggesting that all current securities in the dataset are active for trading.\",\n    \"direction\": \"Given that no securities are marked as test issues, focus should be shifted to analyzing the active trading patterns and strategies for these securities.\",\n    \"action\": \"Consider exploring additional characteristics of the active securities to identify patterns or anomalies in trading volumes or financial performance. For instance, run a query to analyze the 'Round Lot Size' and 'Financial Status' of these active securities to determine trading strategies.\"\n}"
+  },
+  "Financial_Status_Null_Insight": {
+    "insight_details": "Handle and interpret null values in the Financial Status column for precise financial health analysis.",
+    "relation_columns": [
+      {
+        "Financial Status": "Text column showing financial performance indicators for a company or security. Essential for assessing financial health and investor relations. Ambiguity Notes: Sample data includes nulls, could require context."
+      }
+    ],
+    "relations": [
+      {
+        "Null_Analysis_Financial_Status": "Handle and interpret null values in the Financial Status column for precise financial health analysis."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT * FROM data WHERE \"Financial Status\" IS NULL LIMIT 5",
+        "db_result": [
+          [
+            "Y",
+            "A",
+            "Agilent Technologies, Inc. Common Stock",
+            "N",
+            " ",
+            "N",
+            100.0,
+            "N",
+            null,
+            "A",
+            "A",
+            "N"
+          ],
+          [
+            "Y",
+            "AA",
+            "Alcoa Corporation Common Stock ",
+            "N",
+            " ",
+            "N",
+            100.0,
+            "N",
+            null,
+            "AA",
+            "AA",
+            "N"
+          ],
+          [
+            "Y",
+            "AAAU",
+            "Perth Mint Physical Gold ETF",
+            "P",
+            " ",
+            "Y",
+            100.0,
+            "N",
+            null,
+            "AAAU",
+            "AAAU",
+            "N"
+          ],
+          [
+            "Y",
+            "AADR",
+            "AdvisorShares Dorsey Wright ADR ETF",
+            "P",
+            " ",
+            "Y",
+            100.0,
+            "N",
+            null,
+            "AADR",
+            "AADR",
+            "N"
+          ],
+          [
+            "Y",
+            "AAMC",
+            "Altisource Asset Management Corp Com",
+            "A",
+            " ",
+            "N",
+            100.0,
+            "N",
+            null,
+            "AAMC",
+            "AAMC",
+            "N"
+          ]
+        ]
+      }
+    ],
+    "insight_summary": "{\n    \"insight\": \"The database query reveals that there are securities with missing values in the 'Financial Status' column, including notable entities like Agilent Technologies and Alcoa Corporation. This indicates potential gaps in financial performance data that need attention.\",\n    \"direction\": \"Investigate the cause of these missing 'Financial Status' values to determine whether they are errors or if additional data sources are required to fill the gaps.\",\n    \"action\": \"Conduct a comprehensive data audit on the 'Financial Status' column. This might include cross-referencing with external financial databases or directly reaching out to the listed entities for updated financial information.\"\n}"
+  },
+  "Listing_Exchange_Distribution_Insight": {
+    "insight_details": "Group stocks by Listing Exchange to analyze distribution across exchanges. Use GROUP BY for counts or other aggregations.",
+    "relation_columns": [
+      {
+        "Listing Exchange": "Textual column indicating the exchange on which the security is listed (e.g., 'N' for New York Stock Exchange, 'P' for NYSEARCA, etc.). Relevant for market categorization and investor decision-making. Domain Relevance: significant for finance and trading."
+      }
+    ],
+    "relations": [
+      {
+        "Categorical_ListingExchange": "Group stocks by Listing Exchange to analyze distribution across exchanges. Use GROUP BY for counts or other aggregations."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Listing Exchange\", COUNT(*) AS stock_count FROM data GROUP BY \"Listing Exchange\" LIMIT 5",
+        "db_result": [
+          ["A", 253, "Test"],
+          ["N", 2520, false],
+          ["P", 1542],
+          ["Q", 3383, "E"],
+          ["Z", 351]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data reveals that the majority of stocks are listed on exchange 'Q' with 3,383 stocks, followed by 'N' with 2,520 stocks, and 'P' with 1,542 stocks. This suggests that exchanges 'Q' and 'N' are the most popular for listings.\",\n  \"direction\": \"Further investigation is needed to understand the characteristics and performance metrics of stocks listed on the 'Q' and 'N' exchanges, which can inform market strategies and investment decisions.\",\n  \"action\": \"Run additional queries to analyze the performance trends, such as average trading volumes and price movements, for stocks listed on exchanges 'Q' and 'N'. Additionally, consider examining the sector distribution within these exchanges.\"\n}"
+  },
+  "Market_Category_Insight": {
+    "insight_details": "Segregate securities by Market Category for trend analysis and investment pattern insights. Consider COUNT and GROUP BY for analysis.",
+    "relation_columns": [
+      {
+        "Market Category": "Textual column detailing the market category, often left blank or with specific codes. Provides additional classification for securities. Ambiguity Notes: Blank entries may require further context. Domain Relevance: useful in trading analysis."
+      }
+    ],
+    "relations": [
+      {
+        "Categorical_MarketCategory": "Segregate securities by Market Category for trend analysis and investment pattern insights. Consider COUNT and GROUP BY for analysis."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Market Category\", COUNT(*) AS count_per_category FROM data GROUP BY \"Market Category\" LIMIT 5",
+        "db_result": [
+          [" ", 4666],
+          ["G", 900],
+          ["Q", 1531],
+          ["S", 952]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The dataset indicates that the majority of securities (4666) do not have a specified Market Category, while significant numbers fall into the 'Q' (1531), 'G' (900), and 'S' (952) categories.\",\n  \"direction\": \"Investigate why such a large portion of securities lacks a Market Category and assess the characteristics or performances of 'Q', 'G', and 'S' category securities.\",\n  \"action\": \"Perform a detailed analysis of the securities with blank Market Categories to identify potential patterns or issues. Consider profiling the performance and attributes of securities within 'Q', 'G', and 'S' categories to uncover investment trends.\"\n}"
+  },
+  "ETF_Proportion_Insight": {
+    "insight_details": "Determine the proportion of ETFs within the dataset. Use WHERE ETF = 'Y' to filter and analyze ETF-specific trends.",
+    "relation_columns": [
+      {
+        "ETF": "Textual column indicating if the security is an Exchange-Traded Fund ('Y' for yes). Important for investment categorization. Domain Relevance: crucial for financial portfolio management."
+      }
+    ],
+    "relations": [
+      {
+        "ETF_Analysis": "Determine the proportion of ETFs within the dataset. Use WHERE ETF = 'Y' to filter and analyze ETF-specific trends."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT COUNT(*) AS total_etfs, (SELECT COUNT(*) FROM data WHERE ETF = 'Y') * 1.0 / COUNT(*) AS etf_proportion FROM data",
+        "db_result": [[8049, 0.26897751273450116]]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"Approximately 26.9% of the securities in the dataset are Exchange-Traded Funds (ETFs), indicating a significant portion of the market composition.\",\n  \"direction\": \"Further investigate the characteristics of ETFs in the dataset, such as their performance over time, volatility, or sector distribution, to understand their market impact.\",\n  \"action\": \"Perform a deeper analysis of ETFs by querying the dataset for performance metrics, such as average returns, standard deviation, and sector categorization, to evaluate their role and significance in the financial market.\"\n}"
+  },
+  "Round_Lot_Size_Consistency_Insight": {
+    "insight_details": "Validate if Round Lot Size standard (100) is consistent across securities. Use COUNT and GROUP BY for compliance reporting.",
+    "relation_columns": [
+      {
+        "Round Lot Size": "Numeric column showing the minimum trading lot size for the security, typically 100. Essential for traders and market structure analysis. Domain Relevance: important for trading strategies."
+      }
+    ],
+    "relations": [
+      {
+        "RoundLotSize_Check": "Validate if Round Lot Size standard (100) is consistent across securities. Use COUNT and GROUP BY for compliance reporting."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Round Lot Size\", COUNT(*) AS frequency FROM data GROUP BY \"Round Lot Size\" LIMIT 5",
+        "db_result": [
+          [1.0, 1],
+          [10.0, 4],
+          [100.0, 8044]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The query results indicate that the majority of securities (8044) adhere to the standard round lot size of 100, while a small number of securities have non-standard lot sizes of 1 or 10.\",\n  \"direction\": \"Include an examination of securities with non-standard round lot sizes to understand their impact on trading strategies and market operations.\",\n  \"action\": \"Conduct a deeper analysis by identifying the securities associated with non-standard round lot sizes to determine their characteristics and potential trading implications. This can be achieved by running a query that filters these specific round lot sizes.\"\n}"
+  },
+  "Symbol_Consistency_Insight": {
+    "insight_details": "Ensure consistency across Symbol, CQS Symbol, and NASDAQ Symbol. Evaluate discrepancies through WHERE clauses.",
+    "relation_columns": [
+      {
+        "Symbol": "Textual column representing the ticker symbol for a security. Used for identification in trading and analysis. Domain Relevance: vital for stock trading and market assessment."
+      },
+      {
+        "CQS Symbol": "Textual column representing the Consolidated Quotation System symbol for a security. Generally aligns with trading symbols for analysis consistency. Domain Relevance: significant in market data systems."
+      },
+      {
+        "NASDAQ Symbol": "Textual column for the NASDAQ ticker symbol, often aligns with the trading symbol. Important for NASDAQ-specific transactions and analysis. Domain Relevance: central to NASDAQ trading."
+      }
+    ],
+    "relations": [
+      {
+        "Symbol_Consistency": "Ensure consistency across Symbol, CQS Symbol, and NASDAQ Symbol. Evaluate discrepancies through WHERE clauses."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT Symbol, \"CQS Symbol\", \"NASDAQ Symbol\" FROM data WHERE Symbol <> \"CQS Symbol\" OR Symbol <> \"NASDAQ Symbol\" OR \"CQS Symbol\" <> \"NASDAQ Symbol\" LIMIT 5",
+        "db_result": [
+          ["AGM$A", "AGMpA", "AGM-A"],
+          ["CARR.V", "CARRw", "CARR#"],
+          ["UTX.V", "UTXw", "UTX#"]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data reveals inconsistencies across Symbol, CQS Symbol, and NASDAQ Symbol fields, with examples such as ('AGM$A', 'AGMpA', 'AGM-A').\",\n  \"direction\": \"Focus on identifying the root causes of these discrepancies, which may involve data entry errors or differences in symbol conventions across systems.\",\n  \"action\": \"Conduct a comprehensive analysis of the dataset to quantify the extent of these discrepancies and perform manual verification for critical discrepancies. Consider creating a harmonization process to ensure symbol alignment across systems.\"\n}"
+  },
+  "Outlier_Security_Types_Insight": {
+    "insight_details": "Identify outlier securities like ETFs or NextShares that deviate from prevailing categories. Use COUNT for prevalence check.",
+    "relation_columns": [
+      {
+        "ETF": "Textual column indicating if the security is an Exchange-Traded Fund ('Y' for yes). Important for investment categorization. Domain Relevance: crucial for financial portfolio management."
+      },
+      {
+        "NextShares": "Textual column indicating if the security is a NextShares (exchange-traded managed fund, 'N' for no). Used for identifying specific investment vehicles. Domain Relevance: relevant for innovative investment products analysis."
+      }
+    ],
+    "relations": [
+      {
+        "Outlier_SecurityTypes": "Identify outlier securities like ETFs or NextShares that deviate from prevailing categories. Use COUNT for prevalence check."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT ETF, COUNT(*) AS frequency FROM data GROUP BY ETF ORDER BY frequency DESC LIMIT 5",
+        "db_result": [
+          ["N", 5884],
+          ["Y", 2165]
+        ]
+      },
+      {
+        "sql_query": "SELECT NextShares, COUNT(*) AS frequency FROM data GROUP BY NextShares ORDER BY frequency DESC LIMIT 5",
+        "db_result": [
+          ["N", 8046],
+          ["Y", 3]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data indicates that 5884 securities are not ETFs, whereas 2165 are ETFs. Additionally, a vast majority of securities are not classified as NextShares (8046), with only 3 being NextShares.\",\n  \"direction\": \"Focus on analyzing the characteristics and trends of the ETF segment, given its significant representation. Also, investigate the rarity and potential advantages of securities classified as NextShares.\",\n  \"action\": \"Conduct further analysis on ETFs by exploring their market performance and sector distribution. For NextShares, examine their trading patterns and any unique investment strategies they may employ. Consider running queries to assess performance metrics and sector categorizations for both ETFs and NextShares.\"\n}"
+  },
+  "Stock_Exchange_Analysis": {
+    "insight_details": "Analyze the distribution of securities traded on the Nasdaq compared to other exchanges by grouping by the Listing Exchange.",
+    "relation_columns": [
+      {
+        "Nasdaq Traded": "Categorical column indicating whether the security is traded on the Nasdaq (Y/N). Essential for determining exchange listings and market participation. Domain Relevance: used for stock market analysis."
+      },
+      {
+        "Listing Exchange": "Text column denoting the primary exchange code where the security is listed, e.g., 'N' for NYSE. Helps in tracking regional and exchange-specific listings. Domain Relevance: useful in global market analysis."
+      }
+    ],
+    "relations": [
+      {
+        "Stock_Exchange_Analysis": "Group by Listing Exchange to analyze the proportion of securities traded on Nasdaq vs other exchanges."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Listing Exchange\", COUNT(*) AS total_securities, SUM(CASE WHEN \"Nasdaq Traded\" = 'Y' THEN 1 ELSE 0 END) AS nasdaq_securities FROM data GROUP BY \"Listing Exchange\" LIMIT 5",
+        "db_result": [
+          ["A", 253, 253],
+          ["N", 2520, 2520],
+          ["P", 1542, 1542],
+          ["Q", 3383, 3383],
+          ["Z", 351, 351]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data reveals that all securities listed under various exchanges (A, N, P, Q, Z) are traded on Nasdaq, indicating a full correlation between the securities' listing exchange and their Nasdaq trading status.\",\n  \"direction\": \"Further exploration can focus on examining specifics of these exchanges to understand if there are unique characteristics or benefits associated with being listed on both the exchange and Nasdaq.\",\n  \"action\": \"Conduct a deeper analysis to explore financial performance metrics or sector classifications for these securities across different listing exchanges to evaluate any trends or outliers.\"\n}"
+  },
+  "ETFs_Identification": {
+    "insight_details": "Filter securities that are marked as ETFs and analyze their distribution across different market categories.",
+    "relation_columns": [
+      {
+        "ETF": "Categorical column indicating if the security is an Exchange-Traded Fund ('Y'/'N'). Key for differentiating between stock equities and ETFs. Domain Relevance: crucial for portfolio diversification strategies."
+      },
+      {
+        "Market Category": "Text column reflecting market category or segment, often empty or coded values, such as 'G' for Global. Important for market classification and segmentation. Domain Relevance: significant for sector-based analyses."
+      }
+    ],
+    "relations": [
+      {
+        "ETFs_Identification": "Filter securities with ETF marked as 'Y' and analyze their market categories for sector distribution."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Market Category\", COUNT(*) AS etf_count FROM data WHERE ETF = 'Y' GROUP BY \"Market Category\" LIMIT 5",
+        "db_result": [
+          [" ", 1770],
+          ["G", 395]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data shows that out of the securities marked as ETFs, a majority do not fall under a specific market category (1770 unclassified), while 395 are classified under the 'G' (Global) category.\",\n  \"direction\": \"Evaluate the market performance and risk attributes of ETFs with undefined market categories versus those in defined categories such as 'Global'.\",\n  \"action\": \"Conduct a detailed query to assess the performance metrics and risk profiles of ETFs across different market categories. This can help in understanding the characteristics and potential of ETFs lacking market classification.\"\n}"
+  },
+  "Trading_Units": {
+    "insight_details": "Examine the average Round Lot Size for each market category to understand trading unit conventions.",
+    "relation_columns": [
+      {
+        "Round Lot Size": "Numeric column showing the standard trading unit size, typically 100. Essential for trading operations and understanding transaction conventions. Domain Relevance: vital in calculating order sizes and liquidity."
+      },
+      {
+        "Market Category": "Text column reflecting market category or segment, often empty or coded values, such as 'G' for Global. Important for market classification and segmentation. Domain Relevance: significant for sector-based analyses."
+      }
+    ],
+    "relations": [
+      {
+        "Trading_Units": "Use GROUP BY Market Category to calculate average Round Lot Size for each market category."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Market Category\", AVG(\"Round Lot Size\") AS average_round_lot_size FROM data GROUP BY \"Market Category\" LIMIT 5",
+        "db_result": [
+          [" ", 99.90162880411488],
+          ["G", 100.0],
+          ["Q", 100.0],
+          ["S", 100.0]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The average Round Lot Size for securities grouped by Market Category is largely consistent at 100, indicating standard trading conventions are maintained across different market segments. The category with a blank label has a slightly lower average of about 99.90.\",\n  \"direction\": \"Further analyze if the slightly lower average Round Lot Size in the unspecified market category (' ') affects liquidity or trading efficiency in this segment.\",\n  \"action\": \"Perform a detailed investigation of the securities in the unspecified market category to identify any patterns or reasons for the deviation in Round Lot Size. This could include examining specific securities or reviewing historical changes in lot sizes for this category.\"\n}"
+  },
+  "Symbol_Correlation": {
+    "insight_details": "Assess the consistency across Symbol, NASDAQ Symbol, and CQS Symbol to identify any discrepancies in ticker symbols.",
+    "relation_columns": [
+      {
+        "Symbol": "Text column representing the ticker symbol for the security. Key identifier for trading and market data lookups. Domain Relevance: critical for financial data acquisition and trading."
+      },
+      {
+        "NASDAQ Symbol": "Text column representing the symbol for securities specifically on NASDAQ. Critical for identifying Nasdaq listed securities. Domain Relevance: central for Nasdaq market analysis."
+      },
+      {
+        "CQS Symbol": "Text column assigned to securities in the Consolidated Quote System, often overlaps with 'NASDAQ Symbol'. Important for quote dissemination and consolidated market feeds. Domain Relevance: relevant for price discovery and quote comparisons."
+      }
+    ],
+    "relations": [
+      {
+        "Symbol_Correlation": "Check consistency across Symbol, NASDAQ Symbol, and CQS Symbol; GROUP BY Symbol for any discrepancies."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT Symbol, \"NASDAQ Symbol\", \"CQS Symbol\", COUNT(*) AS frequency FROM data GROUP BY Symbol, \"NASDAQ Symbol\", \"CQS Symbol\" HAVING COUNT(*) > 1 LIMIT 5",
+        "db_result": []
+      },
+      {
+        "sql_query": "SELECT Symbol, \"NASDAQ Symbol\", \"CQS Symbol\" FROM data WHERE Symbol <> \"NASDAQ Symbol\" OR Symbol <> \"CQS Symbol\" OR \"NASDAQ Symbol\" <> \"CQS Symbol\" LIMIT 5",
+        "db_result": [
+          ["AGM$A", "AGM-A", "AGMpA"],
+          ["CARR.V", "CARR#", "CARRw"],
+          ["UTX.V", "UTX#", "UTXw"]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data reveals that there are discrepancies in ticker symbols between the Symbol, NASDAQ Symbol, and CQS Symbol fields for certain securities, such as 'AGM$A', 'CARR.V', and 'UTX.V'.\",\n  \"direction\": \"Further investigate the cause of these discrepancies to ensure data accuracy and reliability for investors and analysts.\",\n  \"action\": \"Perform a thorough audit of the data source and cross-reference with official exchange listings to correct any inconsistencies in ticker symbols. Additionally, consider implementing validation checks during data entry or import processes.\"\n}"
+  },
+  "Financial_Status_Review": {
+    "insight_details": "Investigate securities with a non-null Financial Status to assess the financial distress signals of listed companies.",
+    "relation_columns": [
+      {
+        "Financial Status": "Categorical column indicating financial or insolvency status, often null. Important for evaluating corporate financial health. Domain Relevance: vital for credit risk analysis."
+      },
+      {
+        "Symbol": "Text column representing the ticker symbol for the security. Key identifier for trading and market data lookups. Domain Relevance: critical for financial data acquisition and trading."
+      }
+    ],
+    "relations": [
+      {
+        "Financial_Status_Review": "Analyze securities where Financial Status is not null to assess companies under financial stress."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT Symbol, \"Financial Status\" FROM data WHERE \"Financial Status\" IS NOT NULL LIMIT 5",
+        "db_result": [
+          ["AACG", "N"],
+          ["AAL", "N"],
+          ["AAME", "N"],
+          ["AAOI", "N"],
+          ["AAON", "N"]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The data reveals that a limited number of securities have a non-null Financial Status value, all of which are currently marked as 'N', indicating no specific financial distress or insolvency issues at a glance.\",\n  \"direction\": \"Since all retrieved entries show a financial status of 'N', consider broadening the scope of analysis to include historical or other financial metrics to detect latent financial distress.\",\n  \"action\": \"Execute a query to retrieve more comprehensive financial metrics or history for these securities to identify any underlying financial challenges that may not be immediately obvious from the 'Financial Status' field alone.\"\n}"
+  },
+
+  "Category_Listing_Exchange_Insight": {
+    "insight_details": "Analyze distribution of securities across different exchanges using 'Listing Exchange' and 'Market Category'.",
+    "relation_columns": [
+      {
+        "Listing Exchange": "Character column indicating the exchange where the security is listed (e.g., 'N', 'P', 'Q'). Useful for market segmentation and analysis. Domain Relevance: significant for financial market operations."
+      },
+      {
+        "Market Category": "Character column representing market classification, often blank. Domain Relevance: may affect market classification studies. Ambiguity Notes: unclear if 'G' indicates specific category, interpretation dependent on broader dataset context."
+      }
+    ],
+    "relations": [
+      {
+        "Category_Listing_Exchange": "Analyze distribution of securities across different exchanges using 'Listing Exchange' and 'Market Category'. Use GROUP BY 'Listing Exchange' to see the count per exchange and category."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Listing Exchange\", \"Market Category\", COUNT(*) AS security_count FROM data GROUP BY \"Listing Exchange\", \"Market Category\" LIMIT 5",
+        "db_result": [
+          ["A", " ", 253],
+          ["N", " ", 2520],
+          ["P", " ", 1542],
+          ["Q", "G", 900],
+          ["Q", "Q", 1531]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The distribution of securities shows that 'Q' with categories 'G' and 'Q' holds a significant number of securities, particularly 900 and 1531 respectively. Additionally, the 'N' exchange without a specific market category hosts 2520 securities, indicating a notable portion of the dataset.\",\n  \"direction\": \"Explore the impact of this distribution on market dynamics, especially focusing on the exchanges with higher counts like 'N' and 'Q'. Determine if the market categories have specific bearings on trading volumes or financial performance.\",\n  \"action\": \"Conduct a deeper analysis by executing a query to further break down the securities count by including additional attributes such as 'ETF' or 'Round Lot Size' for each listing exchange, to understand the types of securities prevalent in high-count exchanges.\"\n}"
+  },
+  "ETF_Analysis_Insight": {
+    "insight_details": "Filter securities where 'ETF' is 'Y' to focus on Exchange-Traded Funds.",
+    "relation_columns": [
+      {
+        "ETF": "Character indicator if the security is an Exchange-Traded Fund ('Y' for yes). Essential for segregating ETFs in financial analyses. Domain Relevance: critical for investment and portfolio analysis."
+      },
+      {
+        "Security Name": "Text column with the full name of the security. Important for identifying and differentiating among securities in market analysis. Domain Relevance: useful for detailed financial and business reviews."
+      }
+    ],
+    "relations": [
+      {
+        "ETF_Analysis": "Filter securities where 'ETF' is 'Y' to focus on Exchange-Traded Funds. Analyze the number and type of ETFs with GROUP BY 'Market Category'."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Security Name\", \"ETF\" FROM data WHERE \"ETF\" = 'Y' LIMIT 5",
+        "db_result": [
+          ["Perth Mint Physical Gold ETF", "Y"],
+          ["AdvisorShares Dorsey Wright ADR ETF", "Y"],
+          ["iShares MSCI All Country Asia ex Japan Index Fund", "Y"],
+          ["Absolute Core Strategy ETF", "Y"],
+          ["ALPS Clean Energy ETF", "Y"]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The dataset reveals several securities classified as Exchange-Traded Funds (ETFs), including 'Perth Mint Physical Gold ETF' and 'AdvisorShares Dorsey Wright ADR ETF', among others.\",\n  \"direction\": \"Investigate the market performance and category distribution of these ETFs to understand their impact and popularity within their respective sectors.\",\n  \"action\": \"Execute a query to count and categorize ETFs by their 'Market Category' to identify trends and distribution, such as `SELECT \\\"Market Category\\\", COUNT(*) FROM data WHERE \\\"ETF\\\" = 'Y' GROUP BY \\\"Market Category\\\"`.\"\n}"
+  },
+  "Round_Lot_Trend_Insight": {
+    "insight_details": "Check for any non-standard 'Round Lot Size'. Identify unusual trading volumes that could signify market anomalies.",
+    "relation_columns": [
+      {
+        "Round Lot Size": "Numeric column representing the standard trading unit (usually 100 shares). Important for trading operations and transaction cost analysis. Domain Relevance: critical for market trading cost evaluation."
+      }
+    ],
+    "relations": [
+      {
+        "Round_Lot_Trend": "Check for any non-standard 'Round Lot Size'. OUTLIER detection using IQR may identify unusual trading volumes that could signify market anomalies."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Round Lot Size\", COUNT(*) AS frequency FROM data GROUP BY \"Round Lot Size\" ORDER BY frequency DESC LIMIT 5",
+        "db_result": [
+          [100.0, 8044],
+          [10.0, 4],
+          [1.0, 1]
+        ]
+      },
+      {
+        "sql_query": "WITH data_stats AS (SELECT AVG(\"Round Lot Size\") AS avg, (MAX(\"Round Lot Size\") - MIN(\"Round Lot Size\")) / 2 AS iqr_range FROM data) SELECT \"Round Lot Size\" FROM data, data_stats WHERE \"Round Lot Size\" < (avg - iqr_range) OR \"Round Lot Size\" > (avg + iqr_range) ORDER BY \"Round Lot Size\" DESC LIMIT 5",
+        "db_result": [[10.0], [10.0], [10.0], [10.0], [1.0]]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The dataset reveals that the majority (8044) of securities have a standard round lot size of 100 shares, with a few anomalies found at 10 shares and 1 share, indicating potential trading irregularities.\",\n  \"direction\": \"Further investigate these unusually small round lot sizes to understand their market impact and whether these represent special trading practices or erroneous data entries.\",\n  \"action\": \"Conduct a detailed analysis of securities with non-standard round lot sizes by examining their trade volumes, pricing, and market behaviors compared to the standard lot size securities.\"\n}"
+  },
+  "NextShares_Positioning_Insight": {
+    "insight_details": "Identify and analyze securities that are 'NextShares'.",
+    "relation_columns": [
+      {
+        "NextShares": "Character indicator if the entity is a NextShares exchange-traded product ('Y' for yes). Distinguishing feature for specific market strategies. Domain Relevance: niche usage in innovative financial products."
+      },
+      {
+        "Security Name": "Text column with the full name of the security. Important for identifying and differentiating among securities in market analysis. Domain Relevance: useful for detailed financial and business reviews."
+      }
+    ],
+    "relations": [
+      {
+        "NextShares_Positioning": "Identify securities that are 'NextShares'. Use 'NextShares' = 'Y' to determine the prevalence of these innovative trading products within the dataset."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT \"Security Name\" FROM data WHERE \"NextShares\" = 'Y' LIMIT 5",
+        "db_result": [
+          [
+            "Eaton Vance NextShares Trust - Eaton Vance Global Income Builder NextShares"
+          ],
+          [
+            "Eaton Vance NextShares Trust II - Eaton Vance TABS 5-to-15 Year Laddered Municipal Bond NextShares"
+          ],
+          ["Eaton Vance NextShares Trust - Eaton Vance Stock NextShares"]
+        ]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"The database query results indicate the presence of three 'NextShares' exchange-traded products, all associated with Eaton Vance, revealing a focus on innovative financial instruments like global income, municipal bonds, and stock within this specific product class.\",\n  \"direction\": \"Investigate the market performance and investor interest in 'NextShares' products to assess their impact and adoption relative to traditional ETFs and mutual funds.\",\n  \"action\": \"Execute a query to gather trading volumes and recent price trends for 'NextShares' products to evaluate their market activity and investor traction.\"\n}"
+  },
+  "Trading_Status_Insight": {
+    "insight_details": "Determine the count of active versus test issue securities using 'Nasdaq Traded' and 'Test Issue'.",
+    "relation_columns": [
+      {
+        "Nasdaq Traded": "Character column indicating if the security is traded on the NASDAQ exchange ('Y' for yes). Essential for identifying market participation. Domain Relevance: vital for finance and market analyses."
+      },
+      {
+        "Test Issue": "Character column indicating if the security is a test issue ('Y' for yes). Typically used for non-traded securities. Domain Relevance: may be relevant in specific trading simulations or system tests."
+      }
+    ],
+    "relations": [
+      {
+        "Trading_Status": "Determine the count of active vs test issue securities using 'Nasdaq Traded' and 'Test Issue'. Filter where 'Test Issue' is 'N' for live listings."
+      }
+    ],
+    "sql_results_pair": [
+      {
+        "sql_query": "SELECT COUNT(*) AS active_securities FROM data WHERE \"Nasdaq Traded\" = 'Y' AND \"Test Issue\" = 'N' LIMIT 5",
+        "db_result": [[8049]]
+      },
+      {
+        "sql_query": "SELECT COUNT(*) AS test_issue_securities FROM data WHERE \"Test Issue\" = 'Y' LIMIT 5",
+        "db_result": [[0]]
+      }
+    ],
+    "insight_summary": "{\n  \"insight\": \"There are 8049 active securities traded on NASDAQ, and no securities are marked as test issues in this dataset.\",\n  \"direction\": \"Examine the characteristics of the 8049 active securities to understand market dynamics and compare them with other exchanges. Additionally, explore why there are no test issues recorded, as this could have implications for testing capabilities or dataset completeness.\",\n  \"action\": \"Perform segmentation of active securities by further analyzing attributes such as 'Listing Exchange', 'Market Category', and 'ETF' to uncover patterns and trends. Consider contacting data providers for clarity on the absence of test issues or verify data completeness.\"\n}"
+  }
+}

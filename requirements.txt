@@ -1,0 +1,20 @@
+# Core dependencies
+streamlit
+pandas
+regex
+matplotlib
+plotly
+Pillow
+
+# LangChain & LangGraph dependencies
+langchain-openai
+langchain-core
+langgraph
+langchain-community
+
+# Tavily Search Tool
+tavily-python
+
+# Other utilities
+typing-extensions
+ipython
