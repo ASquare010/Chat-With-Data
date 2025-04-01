@@ -13,8 +13,8 @@ An intelligent data analysis platform that lets you interact with your datasets 
 
 ## 🎯 Architecture
 
-![Demo](data/chat_bot.png)
 ![Demo](data/insight_generator.png)
+![Demo](data/chat_bot.png)
 ![Demo](data/key.png)
 
 ## 📦 Project Structure
