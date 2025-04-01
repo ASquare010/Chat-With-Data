@@ -49,7 +49,6 @@ class Text2SQL_Agent():
 
         return {"messages": [result], "sql_queries": result.content, "loop_again": False}
     
-
     def execute_sql_node(self, state: Text2SQLState):
         current_sql_query = ""
         result = list()
@@ -78,7 +77,6 @@ class Text2SQL_Agent():
             print(exception_message)
             return {"loop_again": True, "exception_message": exception_message}
         
-
     def run_sql_query(self, query):
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
@@ -87,11 +85,9 @@ class Text2SQL_Agent():
         conn.close()
         return result
 
-    # Define the condition function for branching
     def loop_again_condition(self,state: Text2SQLState)-> Literal["text_to_sql", END]:
         return "text_to_sql" if state.get("loop_again", False) else END
     
-
     def compile(self):
         builder = StateGraph(Text2SQLState)
         builder.add_node("text_to_sql", self.text_to_sql_node)
@@ -104,7 +100,6 @@ class Text2SQL_Agent():
         
         # Compile the graph
         self.graph = builder.compile()
-
 
     def print_graph(self):
         try:
@@ -335,6 +330,7 @@ class GraphVisualization():
             display(Image(data=png_data))
         except Exception as e:
             print("Failed to render base64 image:", e)
+
     def print_graph(self):
         try:
             png_data = self.graph.get_graph(xray=True).draw_mermaid_png()
