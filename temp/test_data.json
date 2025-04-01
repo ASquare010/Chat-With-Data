@@ -1,288 +1,401 @@
 {
     "Sales_Trend_Insight": {
-        "insight_details": "Analyze monthly sales trends using DATE_TRUNC('month', OrderDate). Determine seasonality or year-over-year changes.",
+        "insight_details": "Analyze monthly sales trends using DATE_TRUNC('month', OrderDate). Utilize seasonal decomposition for identifying patterns.",
         "relation_columns": [
             {
-                "OrderDate": "Date field (YYYY-MM-DD) that specifies when an order was placed. Important for market trend analysis and revenue tracking over time. Domain Relevance: time series analysis in business and finance."
+                "OrderDate": "Date column indicating when the order was placed. Critical for time series analysis and demand forecasting."
             },
             {
-                "SalesAmount": "Numeric field (USD) indicating total sales value. Crucial for evaluating financial performance and revenue trends. Domain Relevance: sales analysis and financial reporting."
+                "SalesAmount": "Numeric column (USD) showing the total sales amount. Essential for revenue tracking and financial reporting."
             }
         ],
         "relations": [
             {
-                "TimeTrend_SalesAmount": "Analyze monthly sales trends using DATE_TRUNC('month', OrderDate). Determine seasonality or year-over-year changes."
+                "TimeTrend_Sales": "Analyze monthly sales trends using DATE_TRUNC('month', OrderDate). Utilize seasonal decomposition for identifying patterns."
             }
         ],
         "sql_results_pair": [
             {
-                "sql_query": "SELECT strftime('%Y-%m', OrderDate) AS month, SUM(SalesAmount) AS total_sales FROM data GROUP BY month ORDER BY month LIMIT 5",
-                "db_result": [
-                    [
-                        "2023-01",
-                        46137.5
-                    ],
-                    [
-                        "2023-02",
-                        43952.66
-                    ],
-                    [
-                        "2023-03",
-                        50103.96
-                    ],
-                    [
-                        "2023-04",
-                        16319.27
-                    ]
-                ]
-            },
-            {
-                "sql_query": "SELECT strftime('%Y', OrderDate) AS year, strftime('%m', OrderDate) AS month, SUM(SalesAmount) AS total_sales FROM data GROUP BY year, month ORDER BY year, month LIMIT 5",
-                "db_result": [
-                    [
-                        "2023",
-                        "01",
-                        46137.5
-                    ],
-                    [
-                        "2023",
-                        "02",
-                        43952.66
-                    ],
-                    [
-                        "2023",
-                        "03",
-                        50103.96
-                    ],
-                    [
-                        "2023",
-                        "04",
-                        16319.27
-                    ]
-                ]
-            }
-        ],
-        "insight_summary": "{\n  \"insight\": \"The sales data indicates monthly variations in sales amounts with January 2023 having the highest sales at $46,137.50, followed by March 2023 at $50,103.96, and a significant drop in April 2023 to $16,319.27. This suggests potential seasonality or other influencing factors affecting sales dynamics over the months.\",\n  \"direction\": \"Investigate potential underlying factors contributing to the fluctuations observed in monthly sales, such as promotional activities, market conditions, or seasonal demand changes. Comparing these months with historical data could also reveal trends or one-off anomalies.\",\n  \"action\": \"Conduct deeper analysis into specific factors affecting each month's sales by examining concurrent marketing campaigns, regional sales performance, and customer segment contributions. Use queries to segment sales data by AdChannel, Region, and CustomerSegment for more granular insights.\"\n}"
-    },
-    "AdEffectiveness_Insight": {
-        "insight_details": "Assess advertising effectiveness by calculating conversion rates (Clicks / Impressions) and evaluating performance across different AdChannels.",
-        "relation_columns": [
-            {
-                "AdChannel": "Categorical field indicating the advertising medium used. Necessary for evaluating advertising effectiveness and strategy refinement. Domain Relevance: marketing analytics and digital advertising frameworks."
-            },
-            {
-                "Clicks": "Integer field showing the number of clicks received from an ad channel. Important for measuring engagement and ad performance. Domain Relevance: digital marketing analytics."
-            },
-            {
-                "Impressions": "Integer field representing the number of times ads are displayed. Essential for understanding audience reach and visibility. Domain Relevance: advertising reach analysis."
-            },
-            {
-                "ConversionRate": "Numeric field representing the ratio of conversions to the number of interactions (e.g., clicks). Expressed as a fraction. Vital for analyzing marketing effectiveness and customer acquisition processes."
-            }
-        ],
-        "relations": [
-            {
-                "ConversionRate_AdEffectiveness": "Calculate conversion rate as Clicks / Impressions. Assess ad effectiveness per AdChannel using GROUP BY."
-            }
-        ],
-        "sql_results_pair": [
-            {
-                "sql_query": "SELECT \"AdChannel\", SUM(\"Clicks\") AS total_clicks, SUM(\"Impressions\") AS total_impressions, CAST(SUM(\"Clicks\") AS FLOAT) / SUM(\"Impressions\") AS conversion_rate FROM data GROUP BY \"AdChannel\" LIMIT 5",
-                "db_result": [
-                    [
-                        "Display Ads",
-                        13900,
-                        341993,
-                        0.04064410675072297
-                    ],
-                    [
-                        "Email",
-                        5875,
-                        153389,
-                        0.038301312349646975
-                    ],
-                    [
-                        "Social Media",
-                        11135,
-                        290456,
-                        0.03833627124246013
-                    ]
-                ]
-            }
-        ],
-        "insight_summary": "{\n  \"insight\": \"The analysis shows that conversion rates are fairly similar across different advertising channels with Display Ads having a conversion rate of 0.0406, Email at 0.0383, and Social Media at 0.0383, indicating consistent ad performance across these channels.\",\n  \"direction\": \"Investigate factors leading to slight conversion rate differences among ad channels to identify opportunities for optimizing overall marketing strategy.\",\n  \"action\": \"Run a detailed analysis to correlate conversion rates with other variables like AdSpend and Regional performance, or experiment with different ad creatives to improve conversion rates.\"\n}"
-    },
-    "Customer_Segmentation_Insight": {
-        "insight_details": "Analyze sales trends and profitability by grouping data according to different CustomerSegments, which can improve targeted marketing strategies.",
-        "relation_columns": [
-            {
-                "CustomerSegment": "Categorical field distinguishing different customer segments. Useful for tailoring sales strategies and promotional efforts. Domain Relevance: consumer behavior analysis and market targeting."
-            }
-        ],
-        "relations": [
-            {
-                "Cluster_CustomerSegmentation": "Group by CustomerSegment to analyze sales trends and profitability across different customer types."
-            }
-        ],
-        "sql_results_pair": [
-            {
-                "sql_query": "SELECT \"CustomerSegment\", SUM(\"Sales\") AS total_sales, SUM(\"Profit\") AS total_profit FROM data GROUP BY \"CustomerSegment\" LIMIT 5",
-                "db_result": [
-                    [
-                        "New",
-                        0.0,
-                        11224.66
-                    ],
-                    [
-                        "Returning",
-                        0.0,
-                        1206.28
-                    ]
-                ]
-            }
-        ],
-        "insight_summary": "{\n  \"insight\": \"The analysis reveals that customers categorized under the 'New' segment contribute significantly more to the total profit (11224.66) compared to the 'Returning' segment (1206.28). This indicates a higher profitability from acquiring new customers, despite the absence of sales figures in this result.\",\n  \"direction\": \"Further investigate why new customers are yielding higher profits. Explore marketing strategies, promotions, or cost structures that might be influencing this segment's profitability.\",\n  \"action\": \"Execute a detailed query to fetch sales data for both 'New' and 'Returning' customer segments. Consider including metrics such as average order value and cost per acquisition for a comprehensive analysis.\"\n}"
-    },
-    "Profit_Outlier_Analysis_Insight": {
-        "insight_details": "Detect and explore the causes of outliers in Profit using statistical methods like IQR or z-scores to ensure accurate financial reporting.",
-        "relation_columns": [
-            {
-                "Profit": "Numeric field (USD) showing net profit after costs and discounts. Critical for financial health evaluation and business sustainability. Domain Relevance: profit analysis and financial strategizing."
-            }
-        ],
-        "relations": [
-            {
-                "Outlier_Profit": "Identify outliers in profit using IQR or z-score methods. Analyze potential causes for extreme profit values."
-            }
-        ],
-        "sql_results_pair": [
-            {
-                "sql_query": "WITH ProfitStats AS (SELECT AVG(Profit) AS mean_profit, (AVG(Profit) - MIN(Profit)) / 2 AS profit_std_dev FROM data) SELECT Profit FROM data, ProfitStats WHERE ABS(Profit - mean_profit) > 3 * profit_std_dev LIMIT 5",
-                "db_result": [
-                    [
-                        308.61
-                    ],
-                    [
-                        607.66
-                    ],
-                    [
-                        296.46
-                    ],
-                    [
-                        296.29
-                    ],
-                    [
-                        240.72
-                    ]
-                ]
-            },
-            {
-                "sql_query": "WITH ProfitQuartiles AS (SELECT MIN(Profit) AS Q1, MAX(Profit) AS Q3 FROM (SELECT Profit FROM data ORDER BY Profit LIMIT (SELECT COUNT(*) FROM data) / 4 OFFSET (SELECT COUNT(*) FROM data) / 4) UNION ALL SELECT MIN(Profit) AS Q1, MAX(Profit) AS Q3 FROM (SELECT Profit FROM data ORDER BY Profit LIMIT (SELECT COUNT(*) FROM data) * 3 / 4 OFFSET (SELECT COUNT(*) FROM data) * 3 / 4)), ProfitIQR AS (SELECT Q3 - Q1 AS IQR FROM ProfitQuartiles) SELECT Profit FROM data WHERE Profit > (SELECT Q3 + 1.5 * IQR FROM ProfitQuartiles, ProfitIQR) OR Profit < (SELECT Q1 - 1.5 * IQR FROM ProfitQuartiles, ProfitIQR) LIMIT 5",
-                "db_result": [
-                    [
-                        128.81
-                    ],
-                    [
-                        308.61
-                    ],
-                    [
-                        198.74
-                    ],
-                    [
-                        180.28
-                    ],
-                    [
-                        234.23
-                    ]
-                ]
-            }
-        ],
-        "insight_summary": "{\n  \"insight\": \"The analysis reveals several outliers in profit values, ranging from extremely low to high profits, suggesting variability in different sales transactions.\",\n  \"direction\": \"Explore the underlying reasons for these profit outliers by examining associated factors such as sales strategies, customer segments, or product categories.\",\n  \"action\": \"Conduct a detailed analysis on transactions with detected profit outliers to identify patterns or discrepancies by querying related columns such as CustomerSegment, ProductID, and Region.\"\n}"
-    },
-    "Profit_Margin_Trend_Insight": {
-        "insight_details": "Track changes in Profit Margin over time using methods like moving averages to monitor financial efficiency and adjustments.",
-        "relation_columns": [
-            {
-                "OrderDate": "Date field (YYYY-MM-DD) that specifies when an order was placed. Important for market trend analysis and revenue tracking over time. Domain Relevance: time series analysis in business and finance."
-            },
-            {
-                "ProfitMargin": "Numeric field (%), representing the ratio of profit to sales, expressed as a percentage. Key indicator of business efficiency and financial soundness."
-            }
-        ],
-        "relations": [
-            {
-                "Trend_ProfitMargin_Analysis": "Monitor changes in Profit Margin over time using moving averages or seasonal decomposition of time series."
-            }
-        ],
-        "sql_results_pair": [
-            {
-                "sql_query": "SELECT OrderDate, ProfitMargin FROM data WHERE OrderDate IS NOT NULL ORDER BY OrderDate LIMIT 5",
+                "sql_query": "SELECT DATE(OrderDate) AS month, SUM(SalesAmount) AS total_sales FROM data GROUP BY month ORDER BY month LIMIT 5",
                 "db_result": [
                     [
                         "2023-01-01",
-                        11.14
+                        1157.49
                     ],
                     [
                         "2023-01-02",
-                        4.4
+                        1880.79
                     ],
                     [
                         "2023-01-03",
-                        19.01
+                        1624.81
                     ],
                     [
                         "2023-01-04",
-                        3.94
+                        1690.49
                     ],
                     [
                         "2023-01-05",
-                        14.57
-                    ]
-                ]
-            },
-            {
-                "sql_query": "SELECT strftime('%Y-%m', OrderDate) AS month, AVG(ProfitMargin) AS avg_profit_margin FROM data GROUP BY month ORDER BY month LIMIT 5",
-                "db_result": [
-                    [
-                        "2023-01",
-                        11.156774193548388
-                    ],
-                    [
-                        "2023-02",
-                        7.4746428571428565
-                    ],
-                    [
-                        "2023-03",
-                        5.97258064516129
-                    ],
-                    [
-                        "2023-04",
-                        5.661
+                        1363.63
                     ]
                 ]
             }
         ],
-        "insight_summary": "{\n    \"insight\": \"The average profit margin shows significant variability from January to April 2023, with a high in January (11.16%) and a decline through subsequent months, reaching 5.66% in April.\",\n    \"direction\": \"Investigate the factors contributing to the decline in profit margins from January to April. Consider analyzing cost fluctuations, discount policies, or changes in sales strategies during this period.\",\n    \"action\": \"Perform a detailed analysis of cost and sales data over these months to identify any patterns or anomalies contributing to declining profit margins. A good start would be querying direct costs and discounts over the same period.\"\n}"
+        "insight_summary": "{\n    \"insight\": \"The sales data shows that daily sales amounts ranged from $1157.49 to $1880.79 over the five-day period starting from January 1, 2023. There is noticeable daily fluctuation in sales amounts, indicating potential underlying trends or patterns.\",\n    \"direction\": \"Conduct a more detailed time series analysis to identify any significant patterns or trends in the sales data over a longer period. This includes seasonal patterns that may influence sales performance.\",\n    \"action\": \"Execute a SQL query to aggregate sales by month and day over a more extended period and apply seasonal decomposition analysis to identify patterns or cyclic behaviors in the sales data. Consider incorporating external variables like holidays or promotions that could impact sales.\"\n}"
     },
-    "Regional_Sales_Insight": {
-        "insight_details": "Compare and contrast sales performance across different geographical regions to optimize resource allocation and strategic planning.",
+    "AdSpend_Trend_Insight": {
+        "insight_details": "Analyze trends in advertisement spending over time using DATE_TRUNC('month', OrderDate). Useful for aligning spend with sales cycles.",
         "relation_columns": [
             {
-                "Region": "Categorical field indicating the geographical area an order is from. Important for regional market analysis and resource allocation."
+                "OrderDate": "Date column indicating when the order was placed. Critical for time series analysis and demand forecasting."
             },
             {
-                "SalesAmount": "Numeric field (USD) indicating total sales value. Crucial for evaluating financial performance and revenue trends."
+                "AdSpend": "Numeric column (USD) detailing the expenditure on advertising. Crucial for marketing budget allocation and efficiency evaluation."
             }
         ],
         "relations": [
             {
-                "Aggregation_Region_Sales": "Use GROUP BY Region to compare and contrast sales performance across different geographical areas."
+                "TimeTrend_AdSpend": "Analyze trends in advertisement spending over time using DATE_TRUNC('month', OrderDate). Useful for aligning spend with sales cycles."
             }
         ],
         "sql_results_pair": [
             {
-                "sql_query": "SELECT Region, SUM(SalesAmount) AS total_sales FROM data GROUP BY Region ORDER BY total_sales DESC LIMIT 5",
+                "sql_query": "SELECT strftime('%Y-%m', OrderDate) AS month, SUM(AdSpend) AS total_ad_spend FROM data GROUP BY month ORDER BY month LIMIT 5",
                 "db_result": [
+                    [
+                        "2023-01",
+                        9307.82
+                    ],
+                    [
+                        "2023-02",
+                        8215.83
+                    ],
+                    [
+                        "2023-03",
+                        10115.06
+                    ],
+                    [
+                        "2023-04",
+                        3337.4500000000003
+                    ]
+                ]
+            }
+        ],
+        "insight_summary": "{\n    \"insight\": \"The monthly analysis of advertisement spending reveals a peak in spending during March 2023 ($10,115.06), following a steady increase from January ($9,307.82) and February ($8,215.83), before dropping significantly in April ($3,337.45).\",\n    \"direction\": \"Consider investigating the factors that led to the increase in ad spending during March and the subsequent drop in April. Assess whether these changes align with sales cycles or specific marketing campaigns.\",\n    \"action\": \"Conduct a detailed analysis comparing monthly ad spend against key performance indicators such as sales data and conversion rates during the same period. Run a query to calculate monthly conversion rates and sales figures: SELECT strftime('%Y-%m', OrderDate) AS month, SUM(SalesAmount) AS total_sales, AVG(ConversionRate) AS avg_conversion_rate FROM data GROUP BY month ORDER BY month;\"\n}"
+    },
+    "AdSpend_Profit_Correlation_Insight": {
+        "insight_details": "Investigate if higher ad spend correlates with higher profits. Consider lagging ad spend by one period.",
+        "relation_columns": [
+            {
+                "AdSpend": "Numeric column (USD) detailing the expenditure on advertising. Crucial for marketing budget allocation and efficiency evaluation."
+            },
+            {
+                "Profit": "Numeric column (USD) calculating the profit earned. Critical for understanding business performance and sustainability."
+            }
+        ],
+        "relations": [
+            {
+                "Correlation_AdSpend_Profit": "Perform Pearson correlation to see if higher ad spend correlates with higher profits. Consider lagging ad spend by one period."
+            }
+        ],
+        "sql_results_pair": [
+            {
+                "sql_query": "SELECT AdSpend, Profit FROM data LIMIT 5",
+                "db_result": [
+                    [
+                        317.81,
+                        128.81
+                    ],
+                    [
+                        426.48,
+                        82.71
+                    ],
+                    [
+                        225.2,
+                        308.61
+                    ],
+                    [
+                        213.96,
+                        66.62
+                    ],
+                    [
+                        487.25,
+                        198.74
+                    ]
+                ]
+            },
+            {
+                "sql_query": "WITH LaggedAdSpend AS (SELECT AdSpend, LAG(AdSpend, 1) OVER (ORDER BY ROWID) AS Lagged_AdSpend, Profit FROM data) SELECT Lagged_AdSpend, Profit FROM LaggedAdSpend LIMIT 5",
+                "db_result": [
+                    [
+                        null,
+                        128.81
+                    ],
+                    [
+                        317.81,
+                        82.71
+                    ],
+                    [
+                        426.48,
+                        308.61
+                    ],
+                    [
+                        225.2,
+                        66.62
+                    ],
+                    [
+                        213.96,
+                        198.74
+                    ]
+                ]
+            }
+        ],
+        "insight_summary": "{\n    \"insight\": \"The correlation analysis shows varied results, with no clear pattern indicating that higher current ad spend directly correlates with immediate profit increases. However, lagging the ad spend reveals potential interaction effects worth further investigation.\",\n    \"direction\": \"Focus on analyzing additional data points with different lag intervals to determine if there is a delayed impact of ad spend on profit. Consider extended time-series analysis to identify any consistent patterns.\",\n    \"action\": \"Run a Pearson correlation analysis across a larger dataset with various lag intervals (e.g., 1-month, 3-months) to assess the relationship between ad spend and subsequent profits more robustly. Use the query: SELECT SalesAmount, Profit, LAG(AdSpend, n) OVER (ORDER BY OrderDate) AS Lagged_AdSpend FROM data;\"\n}"
+    },
+    "AdSpend_Sales_Correlation_Insight": {
+        "insight_details": "Analyze the relationship between advertisement expenditure and sales volume. Look into both concurrent and lead-lag effects.",
+        "relation_columns": [
+            {
+                "AdSpend": "Numeric column (USD) detailing the expenditure on advertising. Crucial for marketing budget allocation and efficiency evaluation."
+            },
+            {
+                "SalesAmount": "Numeric column (USD) showing the total sales amount. Essential for revenue tracking and financial reporting."
+            }
+        ],
+        "relations": [
+            {
+                "Correlation_AdSpend_SalesAmount": "Analyze the relationship between advertisement expenditure and sales volume. Look into both concurrent and lead-lag effects."
+            }
+        ],
+        "sql_results_pair": [
+            {
+                "sql_query": "SELECT AdSpend, SalesAmount FROM data LIMIT 5",
+                "db_result": [
+                    [
+                        317.81,
+                        1157.49
+                    ],
+                    [
+                        426.48,
+                        1880.79
+                    ],
+                    [
+                        225.2,
+                        1624.81
+                    ],
+                    [
+                        213.96,
+                        1690.49
+                    ],
+                    [
+                        487.25,
+                        1363.63
+                    ]
+                ]
+            },
+            {
+                "sql_query": "SELECT lag.AdSpend AS Prev_AdSpend, curr.SalesAmount FROM data curr LEFT JOIN data lag ON curr.ROWID = lag.ROWID + 1 LIMIT 5",
+                "db_result": [
+                    [
+                        null,
+                        1157.49
+                    ],
+                    [
+                        317.81,
+                        1880.79
+                    ],
+                    [
+                        426.48,
+                        1624.81
+                    ],
+                    [
+                        225.2,
+                        1690.49
+                    ],
+                    [
+                        213.96,
+                        1363.63
+                    ]
+                ]
+            },
+            {
+                "sql_query": "SELECT lead.AdSpend AS Next_AdSpend, curr.SalesAmount FROM data curr LEFT JOIN data lead ON curr.ROWID = lead.ROWID - 1 LIMIT 5",
+                "db_result": [
+                    [
+                        426.48,
+                        1157.49
+                    ],
+                    [
+                        225.2,
+                        1880.79
+                    ],
+                    [
+                        213.96,
+                        1624.81
+                    ],
+                    [
+                        487.25,
+                        1690.49
+                    ],
+                    [
+                        445.66,
+                        1363.63
+                    ]
+                ]
+            }
+        ],
+        "insight_summary": "{\n    \"insight\": \"The data indicates varying relationships between advertising spending and sales amount, with some concurrent and lead-lag effects observable. Initial observations suggest that as advertising spend fluctuates, sales amounts do not always follow a linear trend concurrently or with a one-period lead or lag.\",\n    \"direction\": \"Conduct a more thorough statistical analysis, such as a correlation study or regression analysis, to quantify the strength and nature of the relationship between advertising expenditure and sales volume over time. Consider lagging and leading periods to identify time-shifted effects.\",\n    \"action\": \"Execute a comprehensive regression analysis to explore the potential predictive power of advertising spend on future sales amounts. Analyze lagged values to capture delayed effects and determine the optimal time lag for sales impact.\"\n}"
+    },
+    "Profit_Derivation_Insight": {
+        "insight_details": "Check if sales amount and cost directly derive profit: Profit = SalesAmount - Cost.",
+        "relation_columns": [
+            {
+                "SalesAmount": "Numeric column (USD) showing the total sales amount. Essential for revenue tracking and financial reporting."
+            },
+            {
+                "Cost": "Numeric column (USD) representing the cost of goods sold. Fundamental for margin calculation and profitability analysis."
+            },
+            {
+                "Profit": "Numeric column (USD) calculating the profit earned. Critical for understanding business performance and sustainability."
+            }
+        ],
+        "relations": [
+            {
+                "Redundancy_Check_Profit": "Check if sales amount and cost directly derive profit: Profit = SalesAmount - Cost."
+            }
+        ],
+        "sql_results_pair": [
+            {
+                "sql_query": "SELECT *, SalesAmount - Cost AS calculated_profit FROM data WHERE Profit != SalesAmount - Cost LIMIT 5",
+                "db_result": [
+                    [
+                        1,
+                        "2023-01-01",
+                        1076,
+                        298,
+                        "North",
+                        "New",
+                        "Display Ads",
+                        317.81,
+                        413,
+                        3104,
+                        0.133,
+                        1157.49,
+                        25,
+                        694.58,
+                        128.81,
+                        11.14,
+                        2.64,
+                        462.90999999999997
+                    ],
+                    [
+                        2,
+                        "2023-01-02",
+                        1049,
+                        276,
+                        "West",
+                        "New",
+                        "Social Media",
+                        426.48,
+                        436,
+                        4253,
+                        0.102,
+                        1880.79,
+                        10,
+                        1701.81,
+                        82.71,
+                        4.4,
+                        3.41,
+                        178.98000000000002
+                    ],
+                    [
+                        3,
+                        "2023-01-03",
+                        1055,
+                        293,
+                        "North",
+                        "New",
+                        "Social Media",
+                        225.2,
+                        343,
+                        6503,
+                        0.053,
+                        1624.81,
+                        25,
+                        1200.64,
+                        308.61,
+                        19.01,
+                        6.22,
+                        424.16999999999985
+                    ],
+                    [
+                        4,
+                        "2023-01-04",
+                        1072,
+                        291,
+                        "West",
+                        "New",
+                        "Email",
+                        213.96,
+                        213,
+                        7583,
+                        0.028,
+                        1690.49,
+                        25,
+                        1404.98,
+                        66.62,
+                        3.94,
+                        6.9,
+                        285.51
+                    ],
+                    [
+                        5,
+                        "2023-01-05",
+                        1069,
+                        243,
+                        "East",
+                        "New",
+                        "Display Ads",
+                        487.25,
+                        370,
+                        7585,
+                        0.049,
+                        1363.63,
+                        25,
+                        892.08,
+                        198.74,
+                        14.57,
+                        1.8,
+                        471.55000000000007
+                    ]
+                ]
+            }
+        ],
+        "insight_summary": "{\n    \"insight\": \"The Profit column does not consistently equal the SalesAmount minus Cost. The discrepancies suggest that there might be additional factors, like discounts or other costs, contributing to the profit calculation.\",\n    \"direction\": \"Investigate other contributors to the profit calculation, such as potential overlooked costs or revenue adjustments like discounts and returns, to understand these discrepancies better.\",\n    \"action\": \"Run a query to include the Discount column and other potential overheads to recalculate profit accurately. Consider: SELECT OrderID, SalesAmount, Cost, Discount, Profit, (SalesAmount - Cost - Discount) AS recalculated_profit FROM data WHERE Profit != (SalesAmount - Cost - Discount) LIMIT 5.\"\n}"
+    },
+    "Regional_Sales_Cluster_Insight": {
+        "insight_details": "Group sales data by region to compare sales performance across different geographies.",
+        "relation_columns": [
+            {
+                "Region": "Categorical column indicating geographic region of sales. Useful for regional performance analysis and strategy development."
+            },
+            {
+                "SalesAmount": "Numeric column (USD) showing the total sales amount. Essential for revenue tracking and financial reporting."
+            }
+        ],
+        "relations": [
+            {
+                "Cluster_Region_Sales": "Group sales data by region using GROUP BY to compare sales performance across different geographies."
+            }
+        ],
+        "sql_results_pair": [
+            {
+                "sql_query": "SELECT Region, SUM(SalesAmount) AS total_sales FROM data GROUP BY Region LIMIT 5",
+                "db_result": [
+                    [
+                        "East",
+                        44813.44
+                    ],
                     [
                         "North",
                         49544.159999999996
@@ -292,55 +405,105 @@
                         46309.09
                     ],
                     [
-                        "East",
-                        44813.44
-                    ],
-                    [
                         "West",
                         15846.7
                     ]
                 ]
             }
         ],
-        "insight_summary": "{\n  \"insight\": \"The region with the highest sales is North, with a total sales amount of $49,544.16, followed by South and East, with $46,309.09 and $44,813.44, respectively. The West region lags significantly behind with $15,846.70.\",\n  \"direction\": \"Focus on analyzing what drives the significantly higher sales in the North region compared to the West, and explore opportunities to increase sales in underperforming regions.\",\n  \"action\": \"Conduct a detailed analysis of customer demographics, purchasing patterns, and marketing strategies in the North region to identify key success factors that can be applied to other regions. Consider running a comparative analysis of advertisement effectiveness and customer engagement across these regions.\"\n}"
+        "insight_summary": "{\n    \"insight\": \"The data reveals that sales performance varies significantly across regions, with the North region achieving the highest sales volume at $49,544.16, while the West region has the lowest at $15,846.70.\",\n    \"direction\": \"Further investigate why the North region is outperforming others in terms of sales. Consider factors like market size, promotional strategies, or product preferences specific to this region.\",\n    \"action\": \"Conduct a comparative analysis of marketing strategies, customer demographics, and product offerings in each region to identify key factors contributing to sales differences. Specifically, run additional queries to assess marketing spend, customer preferences, and product availability by region.\"\n}"
     },
-    "AdChannel_ROI_Insight": {
-        "insight_details": "Evaluate Marketing ROI across different advertising channels to identify the most effective strategies and optimize future spend.",
+    "CustomerSegment_ProfitMargin_Insight": {
+        "insight_details": "Analyze how profit margin varies across customer segments. Useful for identifying high-value segments.",
         "relation_columns": [
             {
-                "AdChannel": "Categorical field indicating the advertising medium used. Necessary for evaluating advertising effectiveness and strategy refinement."
+                "CustomerSegment": "Categorical column specifying customer segment type, such as 'New'. Important for targeting and campaign optimization."
             },
             {
-                "MarketingROI": "Numeric field representing the return on investment from marketing activities. Essential for analyzing the effectiveness of marketing budgets and strategies."
+                "ProfitMargin": "Numeric column denoting the profit margin as a percentage. Important for evaluating business efficiency and competitive positioning."
             }
         ],
         "relations": [
             {
-                "Correlation_AdChannel_MarketingROI": "Evaluate ROI from different AdChannels to optimize marketing strategies. Suggest using a weighted average grouped by AdChannel."
+                "Cluster_CustomerSegment_ProfitMargin": "Analyze how profit margin varies across customer segments. Useful for identifying high-value segments."
             }
         ],
         "sql_results_pair": [
             {
-                "sql_query": "SELECT AdChannel, AVG(MarketingROI) AS average_roi, COUNT(*) AS number_of_entries FROM data GROUP BY AdChannel ORDER BY average_roi DESC LIMIT 5",
+                "sql_query": "SELECT CustomerSegment, AVG(ProfitMargin) AS average_profit_margin FROM data GROUP BY CustomerSegment ORDER BY average_profit_margin DESC LIMIT 5",
                 "db_result": [
                     [
-                        "Display Ads",
-                        4.5488372093023255,
-                        43
+                        "Returning",
+                        9.418888888888889
                     ],
                     [
-                        "Social Media",
-                        4.501081081081081,
-                        37
-                    ],
-                    [
-                        "Email",
-                        4.3100000000000005,
-                        20
+                        "New",
+                        7.825714285714286
                     ]
                 ]
             }
         ],
-        "insight_summary": "{\n    \"insight\": \"The data reveals that 'Display Ads' have the highest average Marketing ROI at 4.55, followed closely by 'Social Media' at 4.50, and 'Email' at 4.31, based on recent channel performance.\",\n    \"direction\": \"Focus on optimizing and scaling 'Display Ads' and 'Social Media' channels as they provide the highest ROI. Consider reviewing strategies to enhance 'Email' performance to close the gap.\",\n    \"action\": \"Conduct a detailed performance analysis on the top-performing channels to identify successful strategies, and compare demographic and psychographic data of audiences across these channels for targeted enhancement.\"\n}"
+        "insight_summary": "{\n    \"insight\": \"The analysis reveals that 'Returning' customer segments have a higher average profit margin (9.42%) compared to 'New' customer segments (7.83%), indicating that returning customers are more profitable.\",\n    \"direction\": \"Focus on strategies to retain and nurture returning customers since they provide higher profit margins, and investigate why new customers have lower margins.\",\n    \"action\": \"Conduct a detailed analysis on factors contributing to lower profit margins in new customers and explore retention strategies to convert them into high-margin returning customers. Consider running a query to compare average sales and discounts between new and returning customer segments.\"\n}"
+    },
+    "AdChannel_MarketingROI_Insight": {
+        "insight_details": "Compare ROI across different advertising channels. Key for channel strategy optimization.",
+        "relation_columns": [
+            {
+                "AdChannel": "Categorical column indicating the advertising channel used, e.g., 'Display Ads'. Relevant for assessing channel performance and ROI analysis."
+            },
+            {
+                "MarketingROI": "Numeric column illustrating marketing return on investment. Essential for assessing the effectiveness of marketing expenditures."
+            }
+        ],
+        "relations": [
+            {
+                "Cluster_AdChannel_MarketingROI": "Compare ROI across different advertising channels using GROUP BY. Key for channel strategy optimization."
+            }
+        ],
+        "sql_results_pair": [
+            {
+                "sql_query": "SELECT AdChannel, AVG(MarketingROI) AS average_roi FROM data GROUP BY AdChannel LIMIT 5",
+                "db_result": [
+                    [
+                        "Display Ads",
+                        4.5488372093023255
+                    ],
+                    [
+                        "Email",
+                        4.3100000000000005
+                    ],
+                    [
+                        "Social Media",
+                        4.501081081081081
+                    ]
+                ]
+            },
+            {
+                "sql_query": "SELECT AdChannel, MarketingROI FROM data ORDER BY MarketingROI DESC LIMIT 5",
+                "db_result": [
+                    [
+                        "Social Media",
+                        13.77
+                    ],
+                    [
+                        "Social Media",
+                        9.67
+                    ],
+                    [
+                        "Social Media",
+                        8.13
+                    ],
+                    [
+                        "Display Ads",
+                        7.59
+                    ],
+                    [
+                        "Social Media",
+                        7.43
+                    ]
+                ]
+            }
+        ],
+        "insight_summary": "{\n    \"insight\": \"Social Media has the highest average marketing ROI of approximately 4.50, compared to Display Ads at 4.55 and Email at 4.31. Social Media also shows the highest individual ROI values, with multiple entries surpassing 9.\",\n    \"direction\": \"Consider focusing on optimizing and expanding the Social Media advertising strategy, as it tends to yield higher ROI. Further analysis could determine factors contributing to this effectiveness.\",\n    \"action\": \"Conduct a deeper dive into Social Media campaigns to understand key drivers of high ROI. Consider extending this analysis to identify specific campaign attributes, such as targeting or timing, which contribute to successful outcomes.\"\n}"
     }
 }

@@ -18,7 +18,7 @@ sys_data = load_system_message()
 
 class Text2SQL_Agent():
     
-    def __init__(self,prompt:str, system_prompt:str, db_name:str="data/data.db",table_name:str="data", database_type:str="SQLite",max_try:int=2):
+    def __init__(self,prompt:str, system_prompt:str, db_name:str="data/data.db",table_name:str="data", database_type:str="SQLite",max_try:int=3):
         self.llm  = ChatOpenAI(model="gpt-4o", model_kwargs={ "response_format": { "type": "json_object" } })
         self.prompt = prompt
         self.db_name = db_name
@@ -68,13 +68,11 @@ class Text2SQL_Agent():
                     Exception occurred while trying to run query {current_sql_query} exception {str(e)}
                     Data base Information: - Database Type = {self.database_type} - Table_name = {self.table_name}\n
                 """
-                print(exception_message)
                 return {"loop_again": True, "exception_message": exception_message}
 
             
         except Exception as e:
             exception_message = f"Exception occurred while trying to convert {state["sql_queries"]} to Json.loads {str(e)}"
-            print(exception_message)
             return {"loop_again": True, "exception_message": exception_message}
         
     def run_sql_query(self, query):
@@ -151,20 +149,15 @@ class InsightGenerator():
             return {"loop_again": False}
         except Exception as e:
             error = f"Expected JSON syntax error {e}"
-            print(error)
             return {"loop_again": True, "exception_message": error}
         
     def make_insight_cloud_node(self, state: InsightState):
         insights = json.loads(state["insights"])
         keys_to_remove = []
-        i = 0
         for insight_name, insight_data in insights.items():
-            print("Processing insight -> ** ",insight_name," **", i)
-            i += 1
             t2s = Text2SQL_Agent(str({insight_name: insight_data}), sys_data["text_to_sql"])
             t2s_result = t2s.invoke()
             if t2s.run_failed:
-                print("Removed insight -> ** ",insight_name," **")
                 keys_to_remove.append(insight_name)
                 continue
             insight_data["sql_results_pair"] = t2s_result["result_data"]
@@ -408,8 +401,7 @@ class ChatOrchestrator():
     
     def orchestrator_node(self, state: ChatOrchestratorState):
         sys_prompt = self.make_system_prompt()
-        response = self.llm.invoke([sys_prompt] + state["messages"]).content
-        return {"messages": [AIMessage(content=response)]}
+        return {"messages": [self.llm.invoke([sys_prompt] + state["messages"])]}
     
     def compile(self):
         builder = StateGraph(ChatOrchestratorState)
@@ -439,9 +431,8 @@ class ChatOrchestrator():
             print(self.graph.get_graph(xray=True).draw_mermaid())
 
     def invoke(self, prompt:str):
-        self.prompt = prompt
         reply = self.graph.invoke({"messages": [HumanMessage(prompt)]})
-        result = reply["messages"][-1].content
+        result = reply["messages"][-1].content if reply["messages"][-1].content is not None else ""
         img = self.base64_image
         self.base64_image = ""
         return result, img, reply

@@ -144,7 +144,7 @@ def display_chatbot(thread_data,chat_bot):
 
             with st.chat_message(role):
                 st.markdown(content)
-                if role == "assistant" and image_b64:
+                if image_b64:
                     try:
                         image_data = base64.b64decode(image_b64)
                         image = Image.open(io.BytesIO(image_data))
@@ -160,7 +160,7 @@ def display_chatbot(thread_data,chat_bot):
 
         try:
             with st.spinner("Thinking..."):
-                message_text, image_base64 = chat_bot.invoke(prompt)
+                message_text , image_base64, _ = chat_bot.invoke(prompt)
 
             thread_data["messages"].append({
                 "role": "assistant",
