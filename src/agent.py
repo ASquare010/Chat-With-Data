@@ -1,57 +1,33 @@
 import sqlite3, json
 from src.utils import *
-import streamlit as st
 from typing import Literal
-from typing import Annotated
+from src.agent_states import *
 from langchain_openai import ChatOpenAI
-from typing_extensions import TypedDict
 from IPython.display import Image, display
-from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_community.tools.tavily_search import TavilySearchResults
-
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 
 # -------------------------------- Load System Messages ---------------------------------
 
 sys_data = load_system_message()
 
-# ------------------------------------- Agent States ------------------------------------
-
-class Text2SQLState(TypedDict):
-    messages: Annotated[list, add_messages]
-    sql_queries: Annotated[str, save_last]
-    loop_again: Annotated[bool, save_last]
-    exception_message: Annotated[str, save_last]
-    result_data: Annotated[list, save_last]
-
-class InsightState(TypedDict):
-    messages: Annotated[list, add_messages]
-    insights: Annotated[str, save_last]
-    loop_again: Annotated[bool, save_last]
-    json_insights: Annotated[json, save_last]
-
-
-class ChatOrchestratorState(TypedDict):
-    messages: Annotated[list, add_messages]
-
-class GraphVisualizationState(TypedDict):
-    messages: Annotated[list, add_messages]
-
 # ----------------------------------------- Agents --------------------------------------
 
 class Text2SQL_Agent():
     
-    def __init__(self,prompt:str, system_prompt:str, db_name:str="data/data.db",table_name:str="data", database_type:str="Sqlite",loop_count:int=0):
+    def __init__(self,prompt:str, system_prompt:str, db_name:str="data/data.db",table_name:str="data", database_type:str="SQLite",max_try:int=2):
         self.llm  = ChatOpenAI(model="gpt-4o", model_kwargs={ "response_format": { "type": "json_object" } })
         self.prompt = prompt
         self.db_name = db_name
-        self.database_type = database_type
+        self.max_try = max_try
         self.table_name = table_name
-        self.loop_count = loop_count
+        self.database_type = database_type
         self.system_prompt = system_prompt
+        self.run_failed = False
+        self.loop_count = 0
 
         self.compile()
 
@@ -61,15 +37,15 @@ class Text2SQL_Agent():
 
         if state.get("loop_again", True):
             sys_prompt = SystemMessage(self.system_prompt + f"\n- Table_name={self.table_name}\n- database_type={self.database_type}")
-            issue_prompt = HumanMessage(f"Fix the problem {state.get('exception_message', '')} {self.prompt}")
+            issue_prompt = HumanMessage(f"Exception has {state.get('exception_message', '')} {self.prompt}")
 
             result = self.llm.invoke([sys_prompt] + state["messages"] + [issue_prompt] )
         else:
             sys_prompt = SystemMessage(sys_data["text_to_sql"] + f"\n- Table_name={self.table_name}\n- database_type={self.database_type}")
             result = self.llm.invoke([sys_prompt] + state["messages"])
 
-        if self.loop_count > 4:
-            raise Exception("Loop count exceeded")    
+        if self.loop_count > self.max_try:
+            self.run_failed = True   
 
         return {"messages": [result], "sql_queries": result.content, "loop_again": False}
     
@@ -89,12 +65,17 @@ class Text2SQL_Agent():
                 return {"loop_again": False, "result_data": result}
             
             except Exception as e:
-                exception_message = f"Execution while trying to run query {current_sql_query} {str(e)}"
+                exception_message = f"""
+                    Exception occurred while trying to run query {current_sql_query} exception {str(e)}
+                    Data base Information: - Database Type = {self.database_type} - Table_name = {self.table_name}\n
+                """
+                print(exception_message)
                 return {"loop_again": True, "exception_message": exception_message}
 
             
         except Exception as e:
-            exception_message = f"Execution while trying to convert {state["sql_queries"]} to Json {str(e)}"
+            exception_message = f"Exception occurred while trying to convert {state["sql_queries"]} to Json.loads {str(e)}"
+            print(exception_message)
             return {"loop_again": True, "exception_message": exception_message}
         
 
@@ -139,10 +120,10 @@ class Text2SQL_Agent():
 
 class InsightGenerator():
     
-    def __init__(self,user_prompt:str,loop_count:int=0):
+    def __init__(self,metadata:str):
         self.llm  = ChatOpenAI(model="gpt-4o", model_kwargs={ "response_format": { "type": "json_object" } })
-        self.prompt = user_prompt
-        self.loop_count = loop_count
+        self.metadata = metadata
+        self.loop_count = 0
         self.compile()
 
     def metadata_node(self, state: InsightState):
@@ -161,7 +142,7 @@ class InsightGenerator():
             insights = self.llm.invoke([sys_prompt] + state["messages"])
         else:
             sys_prompt = SystemMessage(sys_data["insight_generator"])
-            issue_prompt = HumanMessage(f"Correct the insight json generated {state.get('insights', '')}")
+            issue_prompt = HumanMessage(f"Correct the insight json generated {state.get('insights', '')} exception {state.get('exception_message', '')}")
             insights = self.llm.invoke([sys_prompt] + state["messages"]+ [issue_prompt])
 
         if self.loop_count > 2:
@@ -174,24 +155,36 @@ class InsightGenerator():
             json.loads(state["insights"])
             return {"loop_again": False}
         except Exception as e:
-            return {"loop_again": True}
+            error = f"Expected JSON syntax error {e}"
+            print(error)
+            return {"loop_again": True, "exception_message": error}
         
     def make_insight_cloud_node(self, state: InsightState):
         insights = json.loads(state["insights"])
-
+        keys_to_remove = []
+        i = 0
         for insight_name, insight_data in insights.items():
-            t2s = Text2SQL_Agent(str({insight_name: insight_data}), sys_data["text_to_sql"]).invoke()
-            insight_data["sql_results_pair"] = t2s["result_data"]
+            print("Processing insight -> ** ",insight_name," **", i)
+            i += 1
+            t2s = Text2SQL_Agent(str({insight_name: insight_data}), sys_data["text_to_sql"])
+            t2s_result = t2s.invoke()
+            if t2s.run_failed:
+                print("Removed insight -> ** ",insight_name," **")
+                keys_to_remove.append(insight_name)
+                continue
+            insight_data["sql_results_pair"] = t2s_result["result_data"]
             insight_summary = self.llm.invoke([sys_data["summarizer"]] + state["messages"]+ [HumanMessage(f"The insight {insight_name} {insight_data}")])
             insight_data["insight_summary"] = insight_summary.content
             insights[insight_name] = insight_data
-
+        
+        # Remove the marked keys after the iteration is complete ---
+        for key in keys_to_remove:
+            del insights[key]
+        
         return {"json_insights": insights}
-    
-        # Define the condition function for branching
+      
     def loop_again_condition(self,state: Text2SQLState)-> Literal["insight_generator", "make_insight_cloud"]:
         return "insight_generator" if state.get("loop_again", False) else "make_insight_cloud"
-
 
     def compile(self):
         builder = StateGraph(InsightState)
@@ -222,100 +215,12 @@ class InsightGenerator():
             print(self.graph.get_graph(xray=True).draw_mermaid())
 
     def invoke(self):
-        return self.graph.invoke({"messages": [HumanMessage(self.prompt)]})
-    
-
-class ChatOrchestrator():
-    
-    def __init__(self,user_prompt:str,loop_count:int=0):
-        self.llm  = ChatOpenAI(model="gpt-4o", model_kwargs={ "response_format": { "type": "json_object" } })
-        self.prompt = user_prompt
-        self.loop_count = loop_count
-        self.compile()
-
-    def metadata_node(self, state: InsightState):
-        sys_prompt = SystemMessage(sys_data["metadata"])
-        return {"messages": [self.llm.invoke([sys_prompt] + state["messages"])]}
-    
-    def relation_mapper_node(self, state: InsightState):
-        sys_prompt = SystemMessage(sys_data["relation_mapper"])
-        return {"messages": [self.llm.invoke([sys_prompt] + state["messages"])]}
-    
-    def insight_generator_node(self, state: InsightState):
-        self.loop_count += 1
-
-        if state.get("loop_again", False):
-            sys_prompt = SystemMessage(sys_data["insight_generator"])
-            insights = self.llm.invoke([sys_prompt] + state["messages"])
-        else:
-            sys_prompt = SystemMessage(sys_data["insight_generator"])
-            issue_prompt = HumanMessage(f"Correct the insight json generated {state.get('insights', '')}")
-            insights = self.llm.invoke([sys_prompt] + state["messages"]+ [issue_prompt])
-
-        if self.loop_count > 2:
-            raise Exception("Loop count exceeded")
-
-        return {"messages": [insights], "insights": insights.content, "loop_again": False}
-
-    def check_json_syntax_node(self, state: InsightState):
-        try:
-            json.loads(state["insights"])
-            return {"loop_again": False}
-        except Exception as e:
-            return {"loop_again": True}
-        
-    def make_insight_cloud_node(self, state: InsightState):
-        insights = json.loads(state["insights"])
-
-        for insight_name, insight_data in insights.items():
-            t2s = Text2SQL_Agent(str({insight_name: insight_data}), sys_data["text_to_sql"]).invoke()
-            insight_data["sql_results_pair"] = t2s["result_data"]
-            insight_summary = self.llm.invoke([sys_data["summarizer"]] + state["messages"]+ [HumanMessage(f"The insight {insight_name} {insight_data}")])
-            insight_data["insight_summary"] = insight_summary.content
-            insights[insight_name] = insight_data
-
-        return {"json_insights": insights}
-    
-        # Define the condition function for branching
-    def loop_again_condition(self,state: Text2SQLState)-> Literal["insight_generator", "make_insight_cloud"]:
-        return "insight_generator" if state.get("loop_again", False) else "make_insight_cloud"
-
-
-    def compile(self):
-        builder = StateGraph(InsightState)
-        builder.add_node("orchestrator", self.metadata_node)
-        builder.add_node("relation_mapper", self.relation_mapper_node)
-        builder.add_node("insight_generator", self.insight_generator_node)
-        builder.add_node("check_json_syntax", self.check_json_syntax_node)
-        builder.add_node("make_insight_cloud", self.make_insight_cloud_node)
-
-        # Regular flow
-        builder.add_edge(START, "metadata")
-        builder.add_edge("metadata", "relation_mapper")
-        builder.add_edge("relation_mapper", "insight_generator")
-        builder.add_edge("insight_generator", "check_json_syntax")
-        builder.add_conditional_edges("check_json_syntax", self.loop_again_condition)
-        builder.add_edge("make_insight_cloud", END)
-        
-        
-        # Compile the graph
-        self.graph = builder.compile()
-
-    def print_graph(self):
-        try:
-            png_data = self.graph.get_graph(xray=True).draw_mermaid_png()
-            display(Image(png_data))
-        except Exception as e:
-            print("Failed to render graph image:", e)
-            print(self.graph.get_graph(xray=True).draw_mermaid())
-
-    def invoke(self):
-        return self.graph.invoke({"messages": [HumanMessage(self.prompt)]})
+        return self.graph.invoke({"messages": [HumanMessage(self.metadata)]})
     
 
 class GraphVisualization():
     
-    def __init__(self, user_prompt: str, metadata: str,table_name:str="data",database_type:str="Sqlite" ,database_name:str="data/data.db"):
+    def __init__(self, user_prompt: str, metadata: str,table_name:str="data",database_type:str="SQLite" ,database_name:str="data/data.db"):
 
         tools = [self.text_to_sql_tool, self.py_code_tool]
         self.llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
@@ -356,8 +261,7 @@ class GraphVisualization():
             self.database_results = self.run_sql_query(query)
             return self.database_results[:5]
         except Exception as e:
-            return "Exception in text_to_sql_tool ->",e
-         
+            return "Exception in text_to_sql_tool ->",e    
     
     def py_code_tool(self,code_string: str,execution_globals: dict = None) -> str:
         """
@@ -409,7 +313,6 @@ class GraphVisualization():
             error_details += f"Traceback:\n{tb_str}"
             return error_details
         
-    
     def chart_display_node(self, state: GraphVisualizationState):
         sys_prompt = self.make_system_prompt()
         return {"messages": [self.llm.invoke([sys_prompt] + state["messages"])]}
@@ -530,6 +433,7 @@ class ChatOrchestrator():
             display(Image(data=png_data))
         except Exception as e:
             print("Failed to render base64 image:", e)
+
     def print_graph(self):
         try:
             png_data = self.graph.get_graph(xray=True).draw_mermaid_png()

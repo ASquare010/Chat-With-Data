@@ -1,11 +1,10 @@
-import time, uuid, json
+import base64, io
 import pandas as pd
 import streamlit as st
+import time, uuid, json
+from PIL import Image
 from src.utils import *
 from src.agent import InsightGenerator, ChatOrchestrator
-import base64
-import io
-from PIL import Image
 
 st.set_page_config(
     layout="wide",
