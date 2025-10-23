@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+
+  fake_db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: chat_with_data_db
+      POSTGRES_USER: asquare
+      POSTGRES_PASSWORD: bro_secret
+    volumes:
+      - fake_db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend_db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: chat_with_data_db
+      POSTGRES_USER: asquare
+      POSTGRES_PASSWORD: bro_secret
+    volumes:
+      - backend_db-data:/var/lib/postgresql/data
+    ports:
+      - "5431:5431"
+
+volumes:
+  fake_db-data:
+  backend_db-data:

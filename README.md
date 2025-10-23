@@ -122,3 +122,13 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - Streamlit for UI framework
 - LangChain for AI orchestration
 - SQLite for lightweight database support
+
+
+
+`
+uv init
+python -m uv .venv
+uv workspace add apps/backend
+uv workspace add libs/common
+uv sync
+`

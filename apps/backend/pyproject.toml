@@ -1,0 +1,32 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "FastAPI backend for Chat-With-Data"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "agentic",
+    "common",
+    "db-faker",
+    "db-backend",
+    "fastapi",
+    "uvicorn",
+]
+
+[tool.uv.workspace]
+members = [
+    "packages/insight_engine",
+    "packages/agentic",
+    "packages/common",
+    "packages/db_faker",
+    "packages/db_backend",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.uv.sources]
+common = { workspace = true }
+db-faker = { workspace = true }
+agentic = { workspace = true }
+db-backend = { workspace = true }
