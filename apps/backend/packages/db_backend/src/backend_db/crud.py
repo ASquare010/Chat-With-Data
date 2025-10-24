@@ -2,7 +2,7 @@
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from models import User, ChatThread, Message
+from backend_db.models import User, ChatThread, Message
 from uuid import UUID
 from typing import List
 

@@ -9,9 +9,6 @@ from backend_db import crud, schemas, get_db
 app = FastAPI(title="Chat Service")
 
 
-# Dependency to get async session
-
-
 @app.post("/users", response_model=schemas.UserRead)
 async def create_user(user_in: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     user = await crud.create_user(

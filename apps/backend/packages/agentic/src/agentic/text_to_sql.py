@@ -124,9 +124,7 @@ if __name__ == "__main__":
     repo_root = Path(__file__).resolve().parents[3]
 
     # Build the correct path to metadata_dump.json
-    example_metadata_path = (
-        repo_root / "db_faker" / "data" / "metadata_with_insights.json"
-    )
+    example_metadata_path = repo_root / "db_faker" / "data" / "metadata_dump.json"
 
     if not example_metadata_path.exists():
         raise FileNotFoundError(
@@ -141,5 +139,5 @@ if __name__ == "__main__":
     client.connect()
     agent = Text2SQLAgent(db_client=client, metadata=example_metadata)
     metadata = example_metadata.model_copy(deep=True)
-    print(agent.invoke("Give me 2 tables 5 rows", metadata.filter_tables(['calls'])))
+    print(agent.invoke("Give me 2 tables 5 rows", metadata.filter_tables(["calls"])))
     print(agent.loop_count)

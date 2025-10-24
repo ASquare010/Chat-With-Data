@@ -122,9 +122,7 @@ if __name__ == "__main__":
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[3]
-    example_metadata_path = (
-        repo_root / "db_faker" / "data" / "metadata_with_insights.json"
-    )
+    example_metadata_path = repo_root / "db_faker" / "data" / "metadata_dump.json"
     if not example_metadata_path.exists():
         raise FileNotFoundError(
             f"Example metadata file not found: {example_metadata_path}"

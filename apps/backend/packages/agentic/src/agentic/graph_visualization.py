@@ -175,7 +175,7 @@ if __name__ == "__main__":
     repo_root = Path(__file__).resolve().parents[3]
 
     # Build the correct path to metadata_dump.json
-    example_metadata_path = repo_root / "db_faker" / "data" / "metadata_with_calls.json"
+    example_metadata_path = repo_root / "db_faker" / "data" / "metadata_dump.json"
 
     if not example_metadata_path.exists():
         raise FileNotFoundError(

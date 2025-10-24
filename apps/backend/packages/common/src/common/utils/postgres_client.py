@@ -8,6 +8,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
 from psycopg2.pool import SimpleConnectionPool
 from common.models.db_metadata import DatabaseResult
+from common.config.settings import settings
 
 
 class PostgresClient:
@@ -37,12 +38,11 @@ class PostgresClient:
         password: Optional[str] = None,
         database: Optional[str] = None,
     ):
-        # sensible defaults aligned with your docker-compose fake_db service
-        self.host = host or os.getenv("POSTGRES_HOST", "localhost")
-        self.port = port or int(os.getenv("POSTGRES_PORT", "5432"))
-        self.user = user or os.getenv("POSTGRES_USER", "asquare")
-        self.password = password or os.getenv("POSTGRES_PASSWORD", "bro_secret")
-        self.database = database or os.getenv("POSTGRES_DB", "chat_with_data_db")
+        self.host = host or settings.fake_db_host
+        self.port = port or settings.fake_db_port
+        self.user = user or settings.fake_db_user
+        self.password = password or settings.fake_db_password
+        self.database = database or settings.fake_db_database
 
         # connection pool (created by connect_pool)
         self._pool: Optional[SimpleConnectionPool] = None

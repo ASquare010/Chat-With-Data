@@ -9,7 +9,7 @@ from sqlalchemy import (
     Text,
     Enum as SAEnum,
     ForeignKey,
-    func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import declarative_base, relationship
@@ -29,7 +29,8 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, nullable=True, index=True)
     display_name = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=text("now()"))
+    metadata = Column(JSONB, nullable=True, default={})
 
     threads = relationship(
         "ChatThread", back_populates="user", cascade="all, delete-orphan"
@@ -47,9 +48,9 @@ class ChatThread(Base):
         index=True,
     )
     title = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=text("now()"))
     updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+        DateTime(timezone=True), server_default=text("now()"), onupdate=text("now()")
     )
     metadata = Column(JSONB, nullable=True, default={})
 
@@ -73,14 +74,10 @@ class Message(Base):
         index=True,
     )
     sender = Column(SAEnum(Sender, name="sender_enum"), nullable=False)
-    content = Column(Text, nullable=True)  # textual content
+    content = Column(Text, nullable=True)
     is_image = Column(Boolean, nullable=False, default=False)
-    base64_image = Column(
-        Text, nullable=True
-    )  # store small images as base64; prefer object storage for large files
-    metadata = Column(
-        JSONB, nullable=True, default={}
-    )  # e.g. {"tokens": 123, "model": "gpt-5"}
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    base64_image = Column(Text, nullable=True)
+    metadata = Column(JSONB, nullable=True, default={})
+    created_at = Column(DateTime(timezone=True), server_default=text("now()"))
 
     thread = relationship("ChatThread", back_populates="messages")

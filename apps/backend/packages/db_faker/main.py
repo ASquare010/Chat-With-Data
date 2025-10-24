@@ -3,10 +3,10 @@ import os
 import re
 import json
 from pathlib import Path
-import numpy as np
 from typing import Tuple, List, Dict, Any, Optional
-import psycopg2
+import numpy as np
 import pandas as pd
+import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import execute_values
 from common.utils.postgres_client import PostgresClient
@@ -341,10 +341,15 @@ class PushDataToPostgres:
         self.load_data_into_tables(tables_paths, schema_name)
 
 
-if __name__ == "__main__":
+def load_and_push_fake_data(
+    data_folder: str = "data", data_file: str = "metadata_dump.json"
+):
+    """
+    Find the data csv and metadata file in repo
+    """
     base = os.path.dirname(__file__)
-    metadata_path = os.path.join(base, "data", "metadata_dump.json")
-    tables_path = os.path.join(base, "data", "tables")
+    metadata_path = os.path.join(base, data_folder, data_file)
+    tables_path = os.path.join(base, data_folder, "tables")
     tables: List[str] = []
     for filename in os.listdir(tables_path):
         if filename.endswith(".csv"):
@@ -353,3 +358,7 @@ if __name__ == "__main__":
     print(f"Using metadata path: {metadata_path}")
     pusher = PushDataToPostgres()
     pusher.invoke(metadata_path, tables)
+
+
+if __name__ == "__main__":
+    load_and_push_fake_data()
