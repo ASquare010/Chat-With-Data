@@ -13,6 +13,7 @@ from agentic.prompts.agent_templates import (
 from common.utils.postgres_client import PostgresClient
 from common.models.api_models import Text2SQLOutput
 from common.models.db_metadata import SchemaMetadata, DatabaseResult
+from common.config.settings import settings
 
 
 class Text2SQLAgent:
@@ -21,16 +22,16 @@ class Text2SQLAgent:
     def __init__(
         self,
         db_client: PostgresClient,
-        metadata: SchemaMetadata,
+        schema_metadata: SchemaMetadata,
         database_type: str = "PostgreSQL:18",
         max_try: int = 3,
     ):
         self.llm = ChatOpenAI(
-            model="gpt-5",
+            model=settings.COMMON_MODEL,
             model_kwargs={"response_format": {"type": "json_object"}},
         )
         self.client = db_client
-        self.metadata = metadata
+        self.metadata = schema_metadata
         self.database_type = database_type
         self.max_try = max_try
         self.loop_count = 0
@@ -137,7 +138,7 @@ if __name__ == "__main__":
     example_metadata = SchemaMetadata.model_validate(data)
     client = PostgresClient()
     client.connect()
-    agent = Text2SQLAgent(db_client=client, metadata=example_metadata)
+    agent = Text2SQLAgent(db_client=client, schema_metadata=example_metadata)
     metadata = example_metadata.model_copy(deep=True)
     print(agent.invoke("Give me 2 tables 5 rows", metadata.filter_tables(["calls"])))
     print(agent.loop_count)

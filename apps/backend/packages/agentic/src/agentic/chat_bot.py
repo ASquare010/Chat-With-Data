@@ -10,6 +10,7 @@ from agentic.text_to_sql import Text2SQLAgent
 from agentic.graph_visualization import GraphVisualization
 from common.models.db_metadata import SchemaMetadata
 from common.utils.postgres_client import PostgresClient
+from common.config.settings import settings
 
 
 # ----------------------------------------- Agents --------------------------------------
@@ -26,7 +27,7 @@ class ChatOrchestrator:
     ):
 
         tools = [self.text_to_sql_tool, self.graph_visualization_tool]
-        self.llm = ChatOpenAI(model="gpt-5").bind_tools(tools)
+        self.llm = ChatOpenAI(model=settings.CHAT_MODEL).bind_tools(tools)
         self.tool_node = ToolNode(tools=tools)
         self.txt2sql = Text2SQLAgent(db_client, metadata, db_type)
         self.visu = GraphVisualization(db_client, metadata, db_type)

@@ -10,8 +10,8 @@ from agentic.prompts.agent_templates import make_system_prompt_visualization
 from agentic.agent_states import GraphVisualizationState
 from agentic.text_to_sql import Text2SQLAgent
 from common.utils.postgres_client import PostgresClient
-
 from common.models.db_metadata import SchemaMetadata, DatabaseResult
+from common.config.settings import settings
 
 
 class GraphVisualization:
@@ -25,7 +25,7 @@ class GraphVisualization:
     ):
 
         tools = [self.text_to_sql_tool, self.py_code_tool]
-        self.llm = ChatOpenAI(model="gpt-5").bind_tools(tools)
+        self.llm = ChatOpenAI(model=settings.COMMON_MODEL).bind_tools(tools)
         self.tool_node = ToolNode(tools=tools)
         self.database_type = database_type
         self.db_client = db_client
@@ -46,9 +46,9 @@ class GraphVisualization:
         """
         try:
             text2sql_agent = Text2SQLAgent(
-                db_client=self.db_client,
-                metadata=self.metadata,
-                database_type=self.database_type,
+                self.db_client,
+                self.metadata,
+                self.database_type,
             )
             text2sql_agent.invoke(user_prompt=query)
             raw_results = text2sql_agent.invoke(user_prompt=query)

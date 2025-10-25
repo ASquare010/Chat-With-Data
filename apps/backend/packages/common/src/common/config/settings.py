@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     """
 
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
-    OPENAI_API_MODEL: str = os.getenv("OPENAI_API_MODEL", "gpt-5")
+    CHAT_MODEL: str = os.getenv("OPENAI_API_MODEL", "gpt-5")
+    COMMON_MODEL: str = os.getenv("OPENAI_API_MODEL", "gpt-5")
     IS_DEV: bool = True if os.getenv("STACK", "DEV") == "DEV" else False
     fake_db_host: str = os.getenv("POSTGRES_HOST", "localhost")
     fake_db_port: int = int(os.getenv("POSTGRES_PORT", "5432"))

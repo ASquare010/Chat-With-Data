@@ -3,6 +3,7 @@ from typing import Dict
 from pydantic import ValidationError
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
+from common.config.settings import settings
 from common.models.db_metadata import (
     SchemaMetadata,
     RelationMetadata,
@@ -26,7 +27,7 @@ class InsightGenerator:
 
     def __init__(self, metadata: SchemaMetadata, db_type: str = "postgres:18"):
         self.llm = ChatOpenAI(
-            model="gpt-5",
+            model=settings.COMMON_MODEL,
             model_kwargs={"response_format": {"type": "json_object"}},
         )
         self.metadata = metadata
