@@ -20,13 +20,21 @@ async def create_user(db: AsyncSession, email: str = None, display_name: str = N
 
 
 async def create_thread(
-    db: AsyncSession, user_id: UUID, title: str = None, metadata: dict = None
+    db: AsyncSession, user_id: UUID, title: str = None, extra_metadata: dict = None
 ):
-    thread = ChatThread(user_id=user_id, title=title, metadata=metadata or {})
+    thread = ChatThread(
+        user_id=user_id, title=title, extra_metadata=extra_metadata or {}
+    )
     db.add(thread)
     await db.commit()
-    await db.refresh(thread)
-    return thread
+
+    stmt = (
+        select(ChatThread)
+        .where(ChatThread.id == thread.id)
+        .options(selectinload(ChatThread.messages))
+    )
+    res = await db.execute(stmt)
+    return res.scalars().first()
 
 
 async def create_message(
@@ -36,7 +44,7 @@ async def create_message(
     content: str = None,
     is_image: bool = False,
     base64_image: str = None,
-    metadata: dict = None,
+    extra_metadata: dict = None,
 ):
     msg = Message(
         thread_id=thread_id,
@@ -44,7 +52,7 @@ async def create_message(
         content=content,
         is_image=is_image,
         base64_image=base64_image,
-        metadata=metadata or {},
+        extra_metadata=extra_metadata or {},
     )
     db.add(msg)
     await db.commit()

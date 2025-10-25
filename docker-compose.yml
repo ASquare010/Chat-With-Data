@@ -22,7 +22,7 @@ services:
     volumes:
       - backend_db-data:/var/lib/postgresql/data
     ports:
-      - "5431:5431"
+      - "5431:5432"
 
 volumes:
   fake_db-data:

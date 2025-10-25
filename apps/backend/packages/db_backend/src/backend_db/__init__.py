@@ -17,3 +17,4 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """yield current SessionLocal"""
     async with AsyncSessionLocal() as session:
         yield session
+

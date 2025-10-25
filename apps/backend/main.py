@@ -13,7 +13,6 @@ from common.models.api_models import (
     UserCreate,
 )
 
-
 app = FastAPI(title="Chat Service")
 
 
@@ -33,7 +32,10 @@ async def create_thread_for_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     thread = await crud.create_thread(
-        db, user_id=user_id, title=thread_in.title, metadata=thread_in.metadata
+        db,
+        user_id=user_id,
+        title=thread_in.title,
+        extra_metadata=thread_in.extra_metadata,
     )
     return thread
 
@@ -54,7 +56,7 @@ async def post_message(
         content=message_in.content,
         is_image=message_in.is_image,
         base64_image=message_in.base64_image,
-        metadata=message_in.metadata,
+        extra_metadata=message_in.extra_metadata,
     )
     return msg
 

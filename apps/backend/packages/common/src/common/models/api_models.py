@@ -25,7 +25,7 @@ class MessageCreate(BaseModel):
     content: Optional[str] = None
     is_image: bool = False
     base64_image: Optional[str] = None
-    metadata: Optional[dict] = None
+    extra_metadata: Optional[dict] = None
 
 
 class MessageRead(BaseModel):
@@ -35,7 +35,7 @@ class MessageRead(BaseModel):
     content: Optional[str]
     is_image: bool
     base64_image: Optional[str]
-    metadata: Optional[dict]
+    extra_metadata: Optional[dict]
     created_at: datetime
 
     class Config:
@@ -44,14 +44,14 @@ class MessageRead(BaseModel):
 
 class ThreadCreate(BaseModel):
     title: Optional[str] = None
-    metadata: Optional[dict] = None
+    extra_metadata: Optional[dict] = None
 
 
 class ThreadRead(BaseModel):
     id: UUID
     user_id: UUID
     title: Optional[str]
-    metadata: Optional[dict]
+    extra_metadata: Optional[dict]
     created_at: datetime
     updated_at: datetime
     messages: List[MessageRead] = []

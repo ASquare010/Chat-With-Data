@@ -30,7 +30,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=True, index=True)
     display_name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=text("now()"))
-    metadata = Column(JSONB, nullable=True, default={})
+    schema_metadata = Column(JSONB, nullable=True, default={})
 
     threads = relationship(
         "ChatThread", back_populates="user", cascade="all, delete-orphan"
@@ -52,7 +52,7 @@ class ChatThread(Base):
     updated_at = Column(
         DateTime(timezone=True), server_default=text("now()"), onupdate=text("now()")
     )
-    metadata = Column(JSONB, nullable=True, default={})
+    extra_metadata = Column(JSONB, nullable=True, default={})
 
     user = relationship("User", back_populates="threads")
     messages = relationship(
@@ -77,7 +77,7 @@ class Message(Base):
     content = Column(Text, nullable=True)
     is_image = Column(Boolean, nullable=False, default=False)
     base64_image = Column(Text, nullable=True)
-    metadata = Column(JSONB, nullable=True, default={})
+    extra_metadata = Column(JSONB, nullable=True, default={})
     created_at = Column(DateTime(timezone=True), server_default=text("now()"))
 
     thread = relationship("ChatThread", back_populates="messages")
