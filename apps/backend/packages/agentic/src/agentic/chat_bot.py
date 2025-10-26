@@ -117,13 +117,26 @@ class ChatOrchestrator:
         )
         return result
 
+    async def ainvoke(self, prompt: str) -> str:
+        """Invoke the orchestrator with a user prompt."""
+        sys_prompt = make_sys_prompt_orch(self.metadata)
+        reply = await self.graph.ainvoke(
+            {"messages": [sys_prompt, HumanMessage(prompt)]}
+        )
+        result = (
+            reply["messages"][-1].content
+            if reply["messages"][-1].content is not None
+            else ""
+        )
+        return result
+
 
 if __name__ == "__main__":
 
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[3]
-    example_metadata_path = repo_root / "db_faker" / "data" / "metadata_dump.json"
+    example_metadata_path = repo_root / "db_faker" / "data" / "metadata_processed.json"
     if not example_metadata_path.exists():
         raise FileNotFoundError(
             f"Example metadata file not found: {example_metadata_path}"

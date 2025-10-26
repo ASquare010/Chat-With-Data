@@ -1,9 +1,11 @@
 # crud.py
 from uuid import UUID
-from typing import List
+from typing import List, Optional
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from common.models.db_metadata import SchemaMetadata
 from backend_db.models import User, ChatThread, Message
 
 
@@ -78,3 +80,18 @@ async def list_threads_for_user(db: AsyncSession, user_id: UUID) -> List[ChatThr
     )
     res = await db.execute(stmt)
     return res.scalars().all()
+
+
+async def get_user_schema_metadata(db: AsyncSession, user_id: UUID) -> SchemaMetadata:
+    """
+    Load the JSONB schema_metadata for a user and parse it into SchemaMetadata (pydantic).
+    Returns None when metadata is absent or invalid.
+    """
+    stmt = select(User.schema_metadata).where(User.id == user_id)
+    res = await db.execute(stmt)
+    metadata_json = res.scalar_one_or_none()
+    try:
+        return SchemaMetadata.model_validate(metadata_json)
+    except ValidationError as exc:
+        print(f"Invalid SchemaMetadata stored for user {user_id}: {exc}")
+        return {}

@@ -4,6 +4,9 @@ import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend_db import crud, get_db
+from backend_db.models import Sender
+from agentic.chat_bot import ChatOrchestrator
+from common.utils.postgres_client import PostgresClient
 from common.models.api_models import (
     UserRead,
     ThreadRead,
@@ -13,6 +16,8 @@ from common.models.api_models import (
     UserCreate,
 )
 
+client = PostgresClient()
+client.connect()
 app = FastAPI(title="Chat Service")
 
 
@@ -49,7 +54,8 @@ async def post_message(
     thread = await crud.get_thread_with_messages(db, thread_id)
     if not thread:
         raise HTTPException(status_code=404, detail="Thread not found")
-    msg = await crud.create_message(
+
+    await crud.create_message(
         db,
         thread_id=thread_id,
         sender=message_in.sender,
@@ -58,7 +64,23 @@ async def post_message(
         base64_image=message_in.base64_image,
         extra_metadata=message_in.extra_metadata,
     )
-    return msg
+    try:
+        schema_metadata = await crud.get_user_schema_metadata(db, thread.user_id)
+        print("metadata", schema_metadata)
+        agent = ChatOrchestrator(client, schema_metadata)
+        ai_text = await agent.ainvoke(message_in.content or "")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {e}") from e
+
+    return await crud.create_message(
+        db,
+        thread_id=thread_id,
+        sender=Sender.assistant,
+        content=ai_text,
+        is_image=bool(getattr(agent, "base64_image", "")),
+        base64_image=getattr(agent, "base64_image", None),
+        extra_metadata={"from_agent": True},
+    )
 
 
 @app.get("/threads/{thread_id}", response_model=ThreadRead)
